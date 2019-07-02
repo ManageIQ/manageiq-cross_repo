@@ -1,3 +1,9 @@
-.bundle/
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/repos/
+/tmp/
 Gemfile.lock
-repos/

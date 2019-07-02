@@ -1,3 +1,6 @@
+require "manageiq/cross_repo/version"
+require "manageiq/cross_repo/test_plugin"
+
 require "pathname"
 
 module ManageIQ
@@ -6,5 +9,3 @@ module ManageIQ
     REPOS_DIR = ROOT.join("repos")
   end
 end
-
-require "manageiq/cross_repo/test_plugin"
