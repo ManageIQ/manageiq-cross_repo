@@ -1,0 +1,13 @@
+dist: xenial
+language: ruby
+rvm:
+- 2.5.5
+cache:
+  bundler: true
+addons:
+  postgresql: '10'
+env:
+  global:
+  - TEST_REPO=
+  - MANAGEIQ_CORE_REF=
+script: bundle exec rake test:plugin
