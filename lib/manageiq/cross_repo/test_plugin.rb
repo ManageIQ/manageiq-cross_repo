@@ -42,9 +42,11 @@ module ManageIQ::CrossRepo
       require "tmpdir"
       require "zlib"
 
+      src_url = "https://github.com/#{repo_name}/tarball/#{expected_ref}"
+      puts "Fetching #{src_url}"
+
       Dir.mktmpdir do |dir|
-        source = open("https://github.com/#{repo_name}/tarball/#{expected_ref}", "rb")
-        Minitar.unpack(Zlib::GzipReader.new(source), dir)
+        Minitar.unpack(Zlib::GzipReader.new(open(src_url, "rb")), dir)
 
         content_dir = File.join(dir, Dir.children(dir).detect { |d| d != "pax_global_header" })
         FileUtils.mkdir_p(repo_dir.dirname)
