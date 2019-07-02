@@ -2,10 +2,16 @@
 
 ## Usage
 
-To test a specific plugin against ManageIQ master
+Test a specific plugin against ManageIQ master
 
 ```ruby
 TEST_REPO=manageiq-ui-classic bundle exec rake test:plugin
+```
+
+Test a specific plugin against a particular ManageIQ SHA
+
+```ruby
+TEST_REPO=manageiq-ui-classic MANAGEIQ_CORE_REF=1234abcd bundle exec rake test:plugin
 ```
 
 ## License
