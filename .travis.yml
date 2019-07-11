@@ -8,6 +8,6 @@ addons:
   postgresql: '10'
 env:
   global:
-  - TEST_REPO=
-  - MANAGEIQ_CORE_REF=
+  - TEST_REPO=manageiq-ui-classic
+  - MANAGEIQ_CORE_REF=bbaee2db7f596178cd4f85651f4e50311725e454
 script: bundle exec rake test:plugin
