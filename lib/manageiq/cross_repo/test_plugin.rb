@@ -1,28 +1,22 @@
+require "manageiq/cross_repo/repository"
+
 module ManageIQ::CrossRepo
   class TestPlugin
-    attr_reader :repo_name, :repo_ref, :core_ref
+    attr_reader :plugin_repo, :core_repo
 
     def initialize(repo_name, core_ref)
-      plugin_name, plugin_ref = repo_name.split("@")
-      @repo_ref  = plugin_ref || "master"
-      @repo_name = plugin_name.include?("/") ? plugin_name : "ManageIQ/#{plugin_name}"
-      @core_ref  = core_ref
-    end
-
-    def repo_dir
-      REPOS_DIR.join(repo_name)
-    end
-
-    def core_dir
-      REPOS_DIR.join("ManageIQ/manageiq")
+      @core_repo = Repository.new("manageiq")
+      @core_repo.ref = core_ref if core_ref
+      @plugin_repo = Repository.new(repo_name)
     end
 
     def run
-      ensure_repo(repo_name, repo_dir, repo_ref)
-      ensure_repo("ManageIQ/manageiq", core_dir, core_ref)
-      FileUtils.ln_s(core_dir, repo_dir.join("spec", "manageiq"), :force => true)
+      ensure_repo(plugin_repo)
+      ensure_repo(core_repo)
+      FileUtils.ln_s(core_repo.dir, plugin_repo.dir.join("spec", "manageiq"), :force => true)
 
-      Dir.chdir(repo_dir) do
+      Dir.chdir(plugin_repo.dir) do
+        require "bundler"
         Bundler.with_clean_env do
           system!("bin/setup")
           system!("bundle exec rake spec")
@@ -36,23 +30,22 @@ module ManageIQ::CrossRepo
       exit($CHILD_STATUS.exitstatus) unless system(*args)
     end
 
-    def ensure_repo(repo_name, repo_dir, expected_ref)
-      return if repo_dir.exist? # TODO: Temporary so it doesn't keep recopying during development
+    def ensure_repo(repo)
+      return if repo.dir.exist? # TODO: Temporary so it doesn't keep recopying during development
 
       require "minitar"
       require "open-uri"
       require "tmpdir"
       require "zlib"
 
-      src_url = "https://github.com/#{repo_name}/tarball/#{expected_ref}"
-      puts "Fetching #{src_url}"
+      puts "Fetching #{repo.url}"
 
       Dir.mktmpdir do |dir|
-        Minitar.unpack(Zlib::GzipReader.new(open(src_url, "rb")), dir)
+        Minitar.unpack(Zlib::GzipReader.new(open(repo.url, "rb")), dir)
 
         content_dir = File.join(dir, Dir.children(dir).detect { |d| d != "pax_global_header" })
-        FileUtils.mkdir_p(repo_dir.dirname)
-        FileUtils.mv(content_dir, repo_dir)
+        FileUtils.mkdir_p(repo.dir.dirname)
+        FileUtils.mv(content_dir, repo.dir)
       end
     end
   end
