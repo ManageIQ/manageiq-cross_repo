@@ -29,7 +29,7 @@ module ManageIQ::CrossRepo
       File.join(server, org, repo, "tarball", ref)
     end
 
-    def dir
+    def path
       REPOS_DIR.join(name)
     end
   end
