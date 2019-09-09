@@ -1,9 +1,11 @@
 module ManageIQ::CrossRepo
   class TestPlugin
-    attr_reader :repo_name, :core_ref
+    attr_reader :repo_name, :repo_ref, :core_ref
 
     def initialize(repo_name, core_ref)
-      @repo_name = repo_name.include?("/") ? repo_name : "ManageIQ/#{repo_name}"
+      plugin_name, plugin_ref = repo_name.split("@")
+      @repo_ref  = plugin_ref || "master"
+      @repo_name = plugin_name.include?("/") ? plugin_name : "ManageIQ/#{plugin_name}"
       @core_ref  = core_ref
     end
 
@@ -16,7 +18,7 @@ module ManageIQ::CrossRepo
     end
 
     def run
-      ensure_repo(repo_name, repo_dir, "master")
+      ensure_repo(repo_name, repo_dir, repo_ref)
       ensure_repo("ManageIQ/manageiq", core_dir, core_ref)
       FileUtils.ln_s(core_dir, repo_dir.join("spec", "manageiq"), :force => true)
 
