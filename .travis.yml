@@ -8,6 +8,6 @@ addons:
   postgresql: '10'
 env:
   global:
-  - TEST_REPO=
-  - MANAGEIQ_CORE_REF=
+  - TEST_REPO=agrare/manageiq-providers-kubernetes@call_create_job_from_scanning_class
+  - MANAGEIQ_CORE_REF=f97e6d151ba59a306e1882734e58db9d3f4732ef
 script: bundle exec rake test:plugin
