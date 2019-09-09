@@ -8,6 +8,6 @@ addons:
   postgresql: '10'
 env:
   global:
-  - TEST_REPO=
-  - MANAGEIQ_CORE_REF=
+  - TEST_REPO=agrare/manageiq-providers-ansible_tower@job_do_create_job_refactoring
+  - MANAGEIQ_CORE_REF=f97e6d151ba59a306e1882734e58db9d3f4732ef
 script: bundle exec rake test:plugin
