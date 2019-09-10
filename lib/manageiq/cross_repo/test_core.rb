@@ -11,9 +11,8 @@ module ManageIQ::CrossRepo
       ensure_repo(core_repo)
       gem_repos.each { |gem_repo| ensure_repo(gem_repo) }
 
-      File.write(core_repo.path.join("bundler.d", "overrides.rb"),
-        gem_repos.map { |gem| "override_gem \"#{gem.repo}\", :path => \"#{gem.path}\"" }.join("\n")
-      ) unless gem_repos.empty?
+      content = gem_repos.map { |gem| "override_gem \"#{gem.repo}\", :path => \"#{gem.path}\"" }.join("\n")
+      File.write(core_repo.path.join("bundler.d", "overrides.rb"), content)
 
       Dir.chdir(core_repo.path) do
         require_relative core_repo.path.join("lib", "manageiq", "environment").to_s
