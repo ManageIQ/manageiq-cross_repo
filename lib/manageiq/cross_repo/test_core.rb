@@ -17,9 +17,8 @@ module ManageIQ::CrossRepo
       File.write(core_repo.path.join("bundler.d", "overrides.rb"), content)
 
       Dir.chdir(core_repo.path) do
-        require_relative core_repo.path.join("lib", "manageiq", "environment").to_s
-        ManageIQ::Environment.create_database_user if ENV["CI"]
         Bundler.with_clean_env do
+          system!({"TRAVIS_BUILD_DIR" => core_repo.path.to_s}, "bash", "tools/ci/before_install.sh") if ENV["CI"]
           system!("bin/setup")
           system!("bundle exec rake")
         end
