@@ -11,15 +11,12 @@ module ManageIQ::CrossRepo
     def initialize(identifier, server: "https://github.com")
       name, ref = identifier.split("@")
       org, repo = name.split("/")
-      if repo.nil?
-        repo = org
-        org = "ManageIQ"
-      end
+      repo, org = org, "ManageIQ" if repo.nil?
 
       self.server = server
-      self.org = org
-      self.repo = repo
-      self.ref = ref || "master"
+      self.org    = org
+      self.repo   = repo
+      self.ref    = ref || "master"
     end
 
     def name
