@@ -1,19 +1,19 @@
 module ManageIQ::CrossRepo
   class TestCore < TestBase
-    attr_reader :core_repo, :plugin_repos
+    attr_reader :core_repo, :gem_repos
 
-    def initialize(core_repo, plugin_repos)
+    def initialize(core_repo, gem_repos)
       @core_repo = Repository.new(core_repo)
-      @plugin_repos = plugin_repos.to_a.map { |repo| Repository.new(repo) }
+      @gem_repos = gem_repos.to_a.map { |repo| Repository.new(repo) }
     end
 
     def run
       ensure_repo(core_repo)
-      plugin_repos.each { |plugin_repo| ensure_repo(plugin_repo) }
+      gem_repos.each { |gem_repo| ensure_repo(gem_repo) }
 
       File.write(core_repo.path.join("bundler.d", "overrides.rb"),
-        plugin_repos.map { |plugin| "override_gem \"#{plugin.repo}\", :path => \"#{plugin.path}\"" }.join("\n")
-      ) unless plugin_repos.empty?
+        gem_repos.map { |gem| "override_gem \"#{gem.repo}\", :path => \"#{gem.path}\"" }.join("\n")
+      ) unless gem_repos.empty?
 
       Dir.chdir(core_repo.path) do
         require_relative core_repo.path.join("lib", "manageiq", "environment").to_s

@@ -7,19 +7,19 @@ namespace :test do
   desc "Run core tests"
   task :core do
     core_repo = ENV["CORE_REPO"]
-    plugin_repos = ENV["PLUGIN_REPOS"]&.split(",")
+    gem_repos = ENV["GEM_REPOS"]&.split(",")
 
     # It doesn't make sense to use this without passing anything, since that would
     # be equivalent to just running specs on master
-    if core_repo.blank? && plugin_repos.blank?
-      STDERR.puts "ERROR: must pass either a CORE_REPO or at least one PLUGIN_REPOS"
+    if core_repo.blank? && gem_repos.blank?
+      STDERR.puts "ERROR: must pass either a CORE_REPO or at least one GEM_REPOS"
       exit 1
     end
 
     # If no core repo was specified just use ManageIQ/manageiq@master
     core_repo ||= "ManageIQ/manageiq@master"
 
-    ManageIQ::CrossRepo::TestCore.new(core_repo, plugin_repos).run
+    ManageIQ::CrossRepo::TestCore.new(core_repo, gem_repos).run
   end
 
   desc "Run plugin tests"

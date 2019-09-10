@@ -20,16 +20,16 @@ To test a specific plugin branch against a particular ManageIQ SHA
 TEST_REPO=manageiq-ui-classic@branch-name MANAGEIQ_CORE_REF=1234abcd bundle exec rake test:plugin
 ```
 
-To run the core tests with ManageIQ master using a specific plugin
+To run the core tests with ManageIQ master using a specific gem version
 
 ```ruby
-PLUGIN_REPOS=johndoe/manageiq-ui-classic@branch-name bundle exec rake test:core
+GEM_REPOS=johndoe/manageiq-ui-classic@branch-name bundle exec rake test:core
 ```
 
-To run the core tests for a branch and a set of plugins
+To run the core tests for a branch and a set of gems
 
 ```ruby
-CORE_REPO=johndoe/manageiq@feature PLUGIN_REPOS=johndoe/manageiq-ui-classic@feature,johndoe/manageiq-api@feature bundle exec rake test:core
+CORE_REPO=johndoe/manageiq@feature GEM_REPOS=johndoe/manageiq-ui-classic@feature,johndoe/manageiq-api@feature bundle exec rake test:core
 ```
 
 ## License
