@@ -15,7 +15,6 @@ module ManageIQ::CrossRepo
       FileUtils.ln_s(core_repo.path, plugin_repo.path.join("spec", "manageiq"), :force => true)
 
       Dir.chdir(plugin_repo.path) do
-        require "bundler"
         Bundler.with_clean_env do
           system!("bin/setup")
           system!("bundle exec rake spec")
