@@ -4,9 +4,10 @@ module ManageIQ::CrossRepo
 
     # ManageIQ::CrossRepo::Repository
     #
-    # #initialize(identifier, server: "https://github.com")
-    #
-    # identifier can be [org/]repo[@ref]
+    # @param identifier [String] the short representation of a repository relative to a server, format [org/]repo[@ref]
+    # @param server [String] The git repo server hosting this repository, default: https://github.com
+    # @example
+    #   Repostory.new("ManageIQ/manageiq@master", server: "https://github.com")
     def initialize(identifier, server: "https://github.com")
       name, ref = identifier.split("@")
       org, repo = name.split("/")
