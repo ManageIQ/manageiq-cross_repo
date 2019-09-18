@@ -8,6 +8,6 @@ addons:
   postgresql: '10'
 env:
   global:
-  - TEST_REPO=
-  - MANAGEIQ_CORE_REF=
+  - TEST_REPO=jameswnl/manageiq-providers-ansible_tower@unshare4
+  - MANAGEIQ_CORE_REF=7267d03a
 script: bundle exec rake test:plugin
