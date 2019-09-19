@@ -30,8 +30,12 @@ module ManageIQ::CrossRepo
     def generate_bundler_d(gem_repos, test_repo)
       return if gem_repos.empty?
 
+      bundler_d_path = test_repo.path.join("bundler.d")
+
       content = gem_repos.map { |gem| "override_gem \"#{gem.repo}\", :path => \"#{gem.path}\"" }.join("\n")
-      File.write(test_repo.path.join("bundler.d", "overrides.rb"), content)
+
+      FileUtils.mkdir_p(bundler_d_path)
+      File.write(bundler_d_path.join("overrides.rb"), content)
     end
 
     def prepare_gem_repos(gem_repos, test_repo)
