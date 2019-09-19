@@ -23,14 +23,14 @@ module ManageIQ::CrossRepo
 
     def run
       test_repo.ensure_clone
-      prepare_gem_repos
-
       test_repo.core? ? run_core : run_plugin
     end
 
     private
 
     def run_core
+      prepare_gem_repos
+
       with_test_env do
         system!({"TRAVIS_BUILD_DIR" => test_repo.path.to_s}, "bash", "tools/ci/before_install.sh") if ENV["CI"]
         system!("bin/setup")
@@ -41,6 +41,8 @@ module ManageIQ::CrossRepo
     def run_plugin
       core_repo.ensure_clone
       FileUtils.ln_s(core_repo.path, test_repo.path.join("spec", "manageiq"), :force => true)
+
+      prepare_gem_repos
 
       with_test_env do
         system!("bin/setup")
