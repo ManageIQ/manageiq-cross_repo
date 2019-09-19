@@ -1,7 +1,5 @@
 require "manageiq/cross_repo/version"
-require "manageiq/cross_repo/test_base"
-require "manageiq/cross_repo/test_core"
-require "manageiq/cross_repo/test_plugin"
+require "manageiq/cross_repo/runner"
 
 require "pathname"
 

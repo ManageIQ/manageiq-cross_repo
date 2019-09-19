@@ -30,5 +30,9 @@ module ManageIQ::CrossRepo
     def path
       REPOS_DIR.join(name)
     end
+
+    def core?
+      repo.casecmp("manageiq") == 0
+    end
   end
 end
