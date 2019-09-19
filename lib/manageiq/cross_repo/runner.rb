@@ -22,7 +22,7 @@ module ManageIQ::CrossRepo
     end
 
     def run
-      ensure_repo(test_repo)
+      test_repo.ensure_clone
       prepare_gem_repos
 
       test_repo.core? ? run_core : run_plugin
@@ -39,7 +39,7 @@ module ManageIQ::CrossRepo
     end
 
     def run_plugin
-      ensure_repo(core_repo)
+      core_repo.ensure_clone
       FileUtils.ln_s(core_repo.path, test_repo.path.join("spec", "manageiq"), :force => true)
 
       with_test_env do
@@ -60,25 +60,6 @@ module ManageIQ::CrossRepo
       exit($CHILD_STATUS.exitstatus) unless system(*args)
     end
 
-    def ensure_repo(repo)
-      return if repo.path.exist? # TODO: Temporary so it doesn't keep recopying during development
-
-      require "minitar"
-      require "open-uri"
-      require "tmpdir"
-      require "zlib"
-
-      puts "Fetching #{repo.url}"
-
-      Dir.mktmpdir do |dir|
-        Minitar.unpack(Zlib::GzipReader.new(open(repo.url, "rb")), dir)
-
-        content_dir = File.join(dir, Dir.children(dir).detect { |d| d != "pax_global_header" })
-        FileUtils.mkdir_p(repo.path.dirname)
-        FileUtils.mv(content_dir, repo.path)
-      end
-    end
-
     def generate_bundler_d
       bundler_d_path = core_repo.path.join("bundler.d")
       override_path  = bundler_d_path.join("overrides.rb")
@@ -94,7 +75,7 @@ module ManageIQ::CrossRepo
     end
 
     def prepare_gem_repos
-      gem_repos.each { |gem_repo| ensure_repo(gem_repo) }
+      gem_repos.each { |gem_repo| gem_repo.ensure_clone }
       generate_bundler_d
     end
   end

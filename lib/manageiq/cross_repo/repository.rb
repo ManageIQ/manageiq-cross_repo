@@ -34,5 +34,24 @@ module ManageIQ::CrossRepo
     def core?
       repo.casecmp("manageiq") == 0
     end
+
+    def ensure_clone
+      return if path.exist? # TODO: Temporary so it doesn't keep recopying during development
+
+      require "minitar"
+      require "open-uri"
+      require "tmpdir"
+      require "zlib"
+
+      puts "Fetching #{url}"
+
+      Dir.mktmpdir do |dir|
+        Minitar.unpack(Zlib::GzipReader.new(open(url, "rb")), dir)
+
+        content_dir = File.join(dir, Dir.children(dir).detect { |d| d != "pax_global_header" })
+        FileUtils.mkdir_p(path.dirname)
+        FileUtils.mv(content_dir, path)
+      end
+    end
   end
 end
