@@ -26,12 +26,14 @@ namespace :test do
   task :plugin do
     test_repo = ENV["TEST_REPO"]
     core_ref  = ENV["MANAGEIQ_CORE_REF"] || "master"
+    gem_repos = ENV["GEM_REPOS"]&.split(",")
+
     if test_repo.blank? || core_ref.blank?
       STDERR.puts "ERROR: TEST_REPO env var must be specfied" if test_repo.blank?
       STDERR.puts "ERROR: CORE_REF env var must be specfied"  if core_ref.blank?
       exit 1
     end
 
-    ManageIQ::CrossRepo::TestPlugin.new(test_repo, "manageiq@#{core_ref}").run
+    ManageIQ::CrossRepo::TestPlugin.new(test_repo, "manageiq@#{core_ref}", gem_repos).run
   end
 end
