@@ -1,6 +1,6 @@
 module ManageIQ::CrossRepo
   class Repository
-    attr_accessor :org, :repo, :ref, :server, :sha
+    attr_accessor :org, :repo, :ref, :sha, :url, :path
 
     # ManageIQ::CrossRepo::Repository
     #
@@ -9,31 +9,7 @@ module ManageIQ::CrossRepo
     # @example
     #   Repostory.new("ManageIQ/manageiq@master", server: "https://github.com")
     def initialize(identifier, server: "https://github.com")
-      name, ref = identifier.split("@")
-      org, repo = name.split("/")
-      repo, org = org, "ManageIQ" if repo.nil?
-
-      self.server = server
-      self.org    = org
-      self.repo   = repo
-      self.ref    = ref || "master"
-      self.sha    = ref_to_sha(@ref)
-    end
-
-    def name
-      "#{org}/#{repo}"
-    end
-
-    def url
-      File.join(server, org, repo)
-    end
-
-    def tarball_url
-      File.join(url, "tarball", ref)
-    end
-
-    def path
-      REPOS_DIR.join("#{name}@#{sha}")
+      @org, @repo, @ref, @sha, @url, @path = parse_identifier(identifier, server)
     end
 
     def core?
@@ -61,8 +37,31 @@ module ManageIQ::CrossRepo
 
     private
 
-    def ref_to_sha(ref)
-      ref.match?(/^\h+$/) ? ref : `git ls-remote #{url} #{ref}`.split("\t").first
+    def parse_identifier(identifier, server)
+      if ["/", "~", "."].include?(identifier[0])
+        path = Pathname.new(identifier).expand_path
+        raise ArgumentError, "Path #{path} does not exist" unless path.exist?
+
+        repo = path.basename.to_s
+        ref  = Dir.chdir(path) { `git rev-parse HEAD`.chomp }
+        sha  = ref
+      else
+        name, ref = identifier.split("@")
+        ref ||= "master"
+
+        org, repo = name.split("/")
+        repo, org = org, "ManageIQ" if repo.nil?
+
+        url  = File.join(server, org, repo)
+        sha  = ref.to_s.match?(/^\h+$/) ? ref : `git ls-remote #{url} #{ref}`.split("\t").first
+        path = REPOS_DIR.join("#{org}/#{repo}@#{sha}")
+      end
+
+      return org, repo, ref, sha, url, path
+    end
+
+    def tarball_url
+      url && File.join(url, "tarball", ref)
     end
   end
 end
