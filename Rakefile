@@ -1,37 +1,48 @@
 $LOAD_PATH << File.join(__dir__, "lib")
 require "manageiq-cross_repo"
 
-require "active_support/core_ext/object/blank"
+def usage
+  <<~USAGE
+    Usage:
+      bundle exec rake
 
-namespace :test do
-  desc "Run core tests"
-  task :core do
-    core_repo = ENV["CORE_REPO"]
-    gem_repos = ENV["GEM_REPOS"]&.split(",")
+    Examples:
+    # Test a specific plugin against ManageIQ master
+    TEST_REPO=manageiq-ui-classic bundle exec rake
 
-    # It doesn't make sense to use this without passing anything, since that would
-    # be equivalent to just running specs on master
-    if core_repo.blank? && gem_repos.blank?
-      STDERR.puts "ERROR: must pass either a CORE_REPO or at least one GEM_REPOS"
-      exit 1
-    end
+    # Test a specific plugin against a particular ManageIQ SHA
+    TEST_REPO=manageiq-ui-classic CORE_REPO=manageiq@1234abcd bundle exec rake
 
-    # If no core repo was specified just use ManageIQ/manageiq@master
-    core_repo ||= "ManageIQ/manageiq@master"
+    # To test a specific plugin branch against a particular ManageIQ SHA
+    TEST_REPO=manageiq-ui-classic@branch-name CORE_REPO=manageiq@1234abcd bundle exec rake
 
-    ManageIQ::CrossRepo::TestCore.new(core_repo, gem_repos).run
-  end
+    # To test a specific plugin branch with a set of other plugins
+    TEST_REPO=manageiq-ui-classic@feature GEM_REPOS=manageiq-providers-vmware@feature,manageiq-providers-amazon@feature bundle exec rake
 
-  desc "Run plugin tests"
-  task :plugin do
-    test_repo = ENV["TEST_REPO"]
-    core_ref  = ENV["MANAGEIQ_CORE_REF"] || "master"
-    if test_repo.blank? || core_ref.blank?
-      STDERR.puts "ERROR: TEST_REPO env var must be specfied" if test_repo.blank?
-      STDERR.puts "ERROR: CORE_REF env var must be specfied"  if core_ref.blank?
-      exit 1
-    end
+    # To test a specific plugin branch with a particular ManageIQ SHA and a set of other plugins
+    TEST_REPO=manageiq-ui-classic@feature CORE_REPO=manageiq@1234abcd GEM_REPOS=manageiq-providers-vmware@feature,manageiq-providers-amazon@feature bundle exec rake
 
-    ManageIQ::CrossRepo::TestPlugin.new(test_repo, "manageiq@#{core_ref}").run
+    # To run the core tests with ManageIQ master using a specific gem version
+    GEM_REPOS=johndoe/manageiq-ui-classic@branch-name bundle exec rake
+
+    # To run the core tests for a branch and a set of gems
+    TEST_REPO=johndoe/manageiq@feature GEM_REPOS=johndoe/manageiq-ui-classic@feature,johndoe/manageiq-api@feature bundle exec rake
+  USAGE
+end
+
+task :test do
+  test_repo = ENV["TEST_REPO"]
+  core_repo = ENV["CORE_REPO"]
+  gem_repos = ENV["GEM_REPOS"]&.split(",")
+
+  begin
+    ManageIQ::CrossRepo::Runner.new(test_repo, core_repo, gem_repos).run
+  rescue ArgumentError => e
+    STDERR.puts "ERROR: #{e}"
+    STDERR.puts
+    STDERR.puts usage
+    exit 1
   end
 end
+
+task :default => :test
