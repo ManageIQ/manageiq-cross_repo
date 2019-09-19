@@ -9,5 +9,6 @@ addons:
 env:
   global:
   - TEST_REPO=
-  - MANAGEIQ_CORE_REF=
+  - CORE_REPO=
+  - GEM_REPOS=
 script: bundle exec rake test:plugin

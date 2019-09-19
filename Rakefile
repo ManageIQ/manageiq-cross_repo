@@ -6,34 +6,39 @@ require "active_support/core_ext/object/blank"
 namespace :test do
   desc "Run core tests"
   task :core do
-    core_repo = ENV["CORE_REPO"]
+    test_repo = ENV["TEST_REPO"]
     gem_repos = ENV["GEM_REPOS"]&.split(",")
 
     # It doesn't make sense to use this without passing anything, since that would
     # be equivalent to just running specs on master
-    if core_repo.blank? && gem_repos.blank?
-      STDERR.puts "ERROR: must pass either a CORE_REPO or at least one GEM_REPOS"
+    if test_repo.blank? && gem_repos.blank?
+      STDERR.puts "ERROR: must pass either a TEST_REPO or at least one GEM_REPOS"
       exit 1
     end
 
-    # If no core repo was specified just use ManageIQ/manageiq@master
-    core_repo ||= "ManageIQ/manageiq@master"
+    test_repo ||= "ManageIQ/manageiq@master"
 
-    ManageIQ::CrossRepo::TestCore.new(core_repo, gem_repos).run
+    ManageIQ::CrossRepo::TestCore.new(test_repo, gem_repos).run
   end
 
   desc "Run plugin tests"
   task :plugin do
     test_repo = ENV["TEST_REPO"]
-    core_ref  = ENV["MANAGEIQ_CORE_REF"] || "master"
+    core_repo = ENV["CORE_REPO"]
     gem_repos = ENV["GEM_REPOS"]&.split(",")
 
-    if test_repo.blank? || core_ref.blank?
+    if test_repo.blank?
       STDERR.puts "ERROR: TEST_REPO env var must be specfied" if test_repo.blank?
-      STDERR.puts "ERROR: CORE_REF env var must be specfied"  if core_ref.blank?
       exit 1
     end
 
-    ManageIQ::CrossRepo::TestPlugin.new(test_repo, "manageiq@#{core_ref}", gem_repos).run
+    if core_repo.blank? && gem_repos.blank?
+      STDERR.puts "ERROR: must pass either a CORE_REPO or at least one GEM_REPOS"
+      exit 1
+    end
+
+    core_repo ||= "ManageIQ/manageiq@master"
+
+    ManageIQ::CrossRepo::TestPlugin.new(test_repo, core_repo, gem_repos).run
   end
 end
