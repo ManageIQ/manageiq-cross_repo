@@ -46,14 +46,26 @@ module ManageIQ::CrossRepo
         ref  = Dir.chdir(path) { `git rev-parse HEAD`.chomp }
         sha  = ref
       else
-        name, ref = identifier.split("@")
-        ref ||= "master"
+        if identifier.include?("#")
+          name, pr = identifier.split("#")
+        else
+          name, ref = identifier.split("@")
+          ref ||= "master"
+        end
 
         org, repo = name.split("/")
         repo, org = org, "ManageIQ" if repo.nil?
 
         url  = File.join(server, org, repo)
-        sha  = ref.to_s.match?(/^\h+$/) ? ref : `git ls-remote #{url} #{ref}`.split("\t").first
+
+        sha = if pr
+          `git ls-remote #{url} refs/pull/#{pr}/head`.split("\t").first
+        else
+          ref.to_s.match?(/^\h+$/) ? ref : `git ls-remote #{url} #{ref}`.split("\t").first
+        end
+
+        raise ArgumentError, "#{identifier} does not exist" if sha.nil?
+
         path = REPOS_DIR.join("#{org}/#{repo}@#{sha}")
       end
 
