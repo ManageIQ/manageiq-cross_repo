@@ -49,8 +49,14 @@ module ManageIQ::CrossRepo
         if identifier.include?("#")
           name, pr = identifier.split("#")
         else
-          name, ref = identifier.split("@")
-          ref ||= "master"
+          name, ref_or_branch = identifier.split("@")
+          if ref_or_branch.nil?
+            branch = "master"
+          elsif ref_or_branch.match?(/^\h+$/)
+            ref = ref_or_branch
+          else
+            branch = ref_or_branch
+          end
         end
 
         org, repo = name.split("/")
@@ -60,8 +66,10 @@ module ManageIQ::CrossRepo
 
         sha = if pr
           `git ls-remote #{url} refs/pull/#{pr}/head`.split("\t").first
+        elsif branch
+          `git ls-remote #{url} #{branch}`.split("\t").first
         else
-          ref.to_s.match?(/^\h+$/) ? ref : `git ls-remote #{url} #{ref}`.split("\t").first
+          ref
         end
 
         raise ArgumentError, "#{identifier} does not exist" if sha.nil?
