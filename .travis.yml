@@ -8,7 +8,6 @@ addons:
   postgresql: '10'
 env:
   global:
-  - TEST_REPO=
-  - CORE_REPO=
-  - GEM_REPOS=
-script: bundle exec rake test:plugin
+  - TEST_REPO=manageiq#19330
+  - GEM_REPOS=manageiq-providers-ansible_tower#196
+script: bundle exec rake test
