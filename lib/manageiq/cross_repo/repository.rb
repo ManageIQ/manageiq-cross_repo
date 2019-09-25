@@ -81,7 +81,7 @@ module ManageIQ::CrossRepo
     end
 
     def tarball_url
-      url && File.join(url, "tarball", ref)
+      url && File.join(url, "tarball", sha)
     end
   end
 end
