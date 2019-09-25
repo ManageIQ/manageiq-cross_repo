@@ -11,4 +11,3 @@ env:
   - TEST_REPO=
   - CORE_REPO=
   - GEM_REPOS=
-script: bundle exec rake test:plugin
