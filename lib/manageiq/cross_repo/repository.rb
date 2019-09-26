@@ -65,9 +65,9 @@ module ManageIQ::CrossRepo
         url  = File.join(server, org, repo)
 
         sha = if pr
-          `git ls-remote #{url} refs/pull/#{pr}/head`.split("\t").first
+          git_pr_to_sha(url, pr)
         elsif branch
-          `git ls-remote #{url} #{branch}`.split("\t").first
+          git_branch_to_sha(url, branch)
         else
           ref
         end
@@ -82,6 +82,14 @@ module ManageIQ::CrossRepo
 
     def tarball_url
       url && File.join(url, "tarball", sha)
+    end
+
+    def git_branch_to_sha(url, branch)
+      `git ls-remote #{url} #{branch}`.split("\t").first
+    end
+
+    def git_pr_to_sha(url, pr)
+      `git ls-remote #{url} refs/pull/#{pr}/head`.split("\t").first
     end
   end
 end

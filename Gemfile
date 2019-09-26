@@ -6,3 +6,8 @@ require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundle
 gem "activesupport"
 gem "minitar"
 gem "rake"
+
+group :development, :test do
+  gem "rspec"
+  gem "simplecov"
+end
