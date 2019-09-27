@@ -29,7 +29,7 @@ module ManageIQ::CrossRepo
       Dir.mktmpdir do |dir|
         Minitar.unpack(Zlib::GzipReader.new(open(tarball_url, "rb")), dir)
 
-        content_dir = File.join(dir, Dir.entries(dir).detect { |d| !['.', '..', "pax_global_header"].include?(d) })
+        content_dir = File.join(dir, Pathname.new(dir).children.detect(&:directory?))
         FileUtils.mkdir_p(path.dirname)
         FileUtils.mv(content_dir, path)
       end
