@@ -6,6 +6,8 @@ cache:
   bundler: true
 addons:
   postgresql: '10'
+matrix:
+  fast_finish: true
 env:
   global:
   - TEST_REPO=
