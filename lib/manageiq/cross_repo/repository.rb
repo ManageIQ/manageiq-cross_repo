@@ -19,7 +19,7 @@ module ManageIQ::CrossRepo
     def ensure_clone
       return if path.exist?
 
-      require "minitar"
+      require "mixlib/archive"
       require "open-uri"
       require "tmpdir"
       require "zlib"
@@ -27,9 +27,9 @@ module ManageIQ::CrossRepo
       puts "Fetching #{tarball_url}"
 
       Dir.mktmpdir do |dir|
-        Minitar.unpack(Zlib::GzipReader.new(open(tarball_url, "rb")), dir)
+        Mixlib::Archive.new(open(tarball_url, "rb")).extract(dir)
 
-        content_dir = File.join(dir, Pathname.new(dir).children.detect(&:directory?))
+        content_dir = Pathname.new(dir).children.detect(&:directory?)
         FileUtils.mkdir_p(path.dirname)
         FileUtils.mv(content_dir, path)
       end
