@@ -8,12 +8,12 @@ module ManageIQ::CrossRepo
     def initialize(test_repo, core_repo, gem_repos)
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
       if @test_repo.core?
-        raise ArgumentError, "You cannot pass a CORE_REPO when running a core test"          if core_repo.present?
-        raise ArgumentError, "You must pass at least one GEM_REPOS when running a core test" if gem_repos.blank?
+        raise ArgumentError, "You cannot pass core repo when running a core test"           if core_repo.present?
+        raise ArgumentError, "You must pass at least one gem repo when running a core test" if gem_repos.blank?
 
         @core_repo = @test_repo
       else
-        raise ArgumentError, "You must pass either a CORE_REPO or at least one GEM_REPOS when running a plugin test" if core_repo.blank? && gem_repos.blank?
+        raise ArgumentError, "You must pass either a core repo or at least one gem repo when running a plugin test" if core_repo.blank? && gem_repos.blank?
 
         @core_repo = Repository.new(core_repo || "ManageIQ/manageiq@master")
       end
@@ -45,7 +45,7 @@ module ManageIQ::CrossRepo
 
       with_test_env do
         system!("bin/setup")
-        system!("bundle exec rake spec")
+        system!("bundle exec rake")
       end
     end
 
