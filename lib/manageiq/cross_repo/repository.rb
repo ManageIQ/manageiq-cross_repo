@@ -104,7 +104,7 @@ module ManageIQ::CrossRepo
     end
 
     def git_pr_to_sha(url, pr)
-      `git ls-remote #{url} refs/pull/#{pr}/head`.split("\t").first
+      git_branch_to_sha(url, "refs/pull/#{pr}/head")
     end
   end
 end
