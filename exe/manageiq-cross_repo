@@ -86,6 +86,11 @@ end
 
 opts[:gem_repos] = opts[:gem_repos].flatten.flat_map { |repo| repo.split(",").map(&:strip) }
 
+if ENV["CI"] && opts[:test_repo] == "ManageIQ/manageiq@master" && opts[:core_repo].blank? && opts[:gem_repos].blank?
+  puts "Nothing to do!"
+  exit
+end
+
 begin
   ManageIQ::CrossRepo.run(opts[:test_repo], opts[:core_repo], opts[:gem_repos])
 rescue ArgumentError => e
