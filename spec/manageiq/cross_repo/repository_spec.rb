@@ -67,8 +67,8 @@ describe ManageIQ::CrossRepo::Repository do
     context "with a PR" do
       let(:pr) { "1" }
       before do
-        allow_any_instance_of(described_class).to receive(:git_pr_to_sha)
-          .with(anything, pr)
+        allow_any_instance_of(described_class).to receive(:git_branch_to_sha)
+          .with(anything, "refs/pull/#{pr}/head")
           .and_return(sha)
       end
 
