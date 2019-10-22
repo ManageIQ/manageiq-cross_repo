@@ -29,6 +29,9 @@ Repo Formats:
     @ref:       Optional, defaults to master if #pr not set. Can be a branch, tag, or SHA. Mutually exclusive with #pr.
     #pr:        Optional, references a pull-request number. Mutually exclusive with @ref.
 
+  URL: https://github.com/org/repository, https://github.com/org/repository/tree/branch,
+       https://github.com/org/repository/commit/sha, https://github.com/org/repository/pull/pr
+
   Local: Either a fully qualified path or a relative path (e.g. /path/to/repo, ~/relative/to/home, ../relative/to/current/dir)
 
 Examples:

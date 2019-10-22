@@ -45,6 +45,12 @@ describe ManageIQ::CrossRepo::Repository do
           expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("JoeSmith", "manageiq@#{sha}"))
         end
 
+        it "in a URL format" do
+          repo = described_class.new("https://github.com/JoeSmith/manageiq/tree/#{branch}")
+
+          expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("JoeSmith", "manageiq@#{sha}"))
+        end
+
         context "that doesn't exist" do
           let(:sha) { nil }
 
@@ -59,6 +65,12 @@ describe ManageIQ::CrossRepo::Repository do
     context "with a specific ref" do
       it "uses the ref" do
         repo = described_class.new("manageiq@#{sha}")
+
+        expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
+      end
+
+      it "in a URL format" do
+        repo = described_class.new("https://github.com/ManageIQ/manageiq/commit/#{sha}")
 
         expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
       end

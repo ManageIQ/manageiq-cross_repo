@@ -73,15 +73,27 @@ module ManageIQ::CrossRepo
 
     def parse_url_identifier
       url_path = URI.parse(identifier).path
-      org_and_repo, pr = url_path.split("/pull/")
-      _, org, repo = org_and_repo.split("/")
+      _, org, repo, type, commit_branch_or_pr = url_path.split("/")
+
+      case type
+      when "tree"
+        branch = commit_branch_or_pr
+      when "commit"
+        commit = commit_branch_or_pr
+      when "pull"
+        pr = commit_branch_or_pr
+      else
+        branch = "master"
+      end
 
       url = File.join(server, org, repo)
       sha =
         if pr
           git_pr_to_sha(url, pr)
+        elsif branch
+          git_branch_to_sha(url, branch)
         else
-          git_branch_to_sha(url, "master")
+          commit
         end
 
       raise ArgumentError, "#{identifier} does not exist" if sha.nil?
