@@ -1,6 +1,7 @@
 module ManageIQ::CrossRepo
   class Repository
-    attr_accessor :org, :repo, :ref, :sha, :url, :path
+    attr_reader :identifier, :server
+    attr_reader :org, :repo, :ref, :sha, :url, :path
 
     # ManageIQ::CrossRepo::Repository
     #
@@ -9,7 +10,9 @@ module ManageIQ::CrossRepo
     # @example
     #   Repostory.new("ManageIQ/manageiq@master", server: "https://github.com")
     def initialize(identifier, server: "https://github.com")
-      @org, @repo, @ref, @sha, @url, @path = parse_identifier(identifier, server)
+      @identifier = identifier
+      @server     = server
+      @org, @repo, @ref, @sha, @url, @path = parse_identifier
     end
 
     def core?
@@ -37,49 +40,79 @@ module ManageIQ::CrossRepo
 
     private
 
-    def parse_identifier(identifier, server)
-      if ["/", "~", "."].include?(identifier[0])
-        path = Pathname.new(identifier).expand_path
-        raise ArgumentError, "Path #{path} does not exist" unless path.exist?
+    def parse_identifier
+      if local_identifier?
+        parse_local_identifier
+      elsif url_identifier?
+        parse_url_identifier
+      else
+        parse_repo_identifier
+      end
+    end
 
-        repo = path.basename.to_s
-        ref  = Dir.chdir(path) { `git rev-parse HEAD`.chomp }
-        sha  = ref
-      elsif identifier.start_with?(server)
-        identifier = URI.parse(identifier).path
-        org_and_repo, pr = identifier.split("/pull/")
-        _, org, repo = org_and_repo.split("/")
+    def local_identifier?
+      ["/", "~", "."].include?(identifier[0])
+    end
 
-        url = File.join(server, org, repo)
-        sha = if pr
+    def parse_local_identifier
+      path = Pathname.new(identifier).expand_path
+      raise ArgumentError, "Path #{path} does not exist" unless path.exist?
+
+      org  = nil
+      repo = path.basename.to_s
+      ref  = Dir.chdir(path) { `git rev-parse HEAD`.chomp }
+      sha  = ref
+      url  = nil
+
+      return org, repo, ref, sha, url, path
+    end
+
+    def url_identifier?
+      identifier.start_with?(server)
+    end
+
+    def parse_url_identifier
+      url_path = URI.parse(identifier).path
+      org_and_repo, pr = url_path.split("/pull/")
+      _, org, repo = org_and_repo.split("/")
+
+      url = File.join(server, org, repo)
+      sha =
+        if pr
           git_pr_to_sha(url, pr)
         else
           git_branch_to_sha(url, "master")
         end
 
-        raise ArgumentError, "#{identifier} does not exist" if sha.nil?
+      raise ArgumentError, "#{identifier} does not exist" if sha.nil?
 
-        path = REPOS_DIR.join("#{org}/#{repo}@#{sha}")
+      ref  = nil
+      path = REPOS_DIR.join("#{org}/#{repo}@#{sha}")
+
+      return org, repo, ref, sha, url, path
+    end
+
+    def parse_repo_identifier
+      if identifier.include?("#")
+        name, pr = identifier.split("#")
       else
-        if identifier.include?("#")
-          name, pr = identifier.split("#")
+        name, ref_or_branch = identifier.split("@")
+        if ref_or_branch.nil?
+          branch = "master"
+        elsif ref_or_branch.match?(/^\h+$/)
+          ref = ref_or_branch
         else
-          name, ref_or_branch = identifier.split("@")
-          if ref_or_branch.nil?
-            branch = "master"
-          elsif ref_or_branch.match?(/^\h+$/)
-            ref = ref_or_branch
-          else
-            branch = ref_or_branch
-          end
+          branch = ref_or_branch
         end
+      end
 
-        org, repo = name.split("/")
-        repo, org = org, "ManageIQ" if repo.nil?
+      org, repo = name.split("/")
+      repo, org = org, "ManageIQ" if repo.nil?
 
-        url  = File.join(server, org, repo)
+      url = File.join(server, org, repo)
 
-        sha = if pr
+      sha =
+        if pr
           git_pr_to_sha(url, pr)
         elsif branch
           git_branch_to_sha(url, branch)
@@ -87,10 +120,9 @@ module ManageIQ::CrossRepo
           ref
         end
 
-        raise ArgumentError, "#{identifier} does not exist" if sha.nil?
+      raise ArgumentError, "#{identifier} does not exist" if sha.nil?
 
-        path = REPOS_DIR.join("#{org}/#{repo}@#{sha}")
-      end
+      path = REPOS_DIR.join("#{org}/#{repo}@#{sha}")
 
       return org, repo, ref, sha, url, path
     end
