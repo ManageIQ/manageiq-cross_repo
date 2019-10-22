@@ -20,6 +20,13 @@ describe ManageIQ::CrossRepo::Repository do
         end
       end
 
+      context "with a repository URL" do
+        it "uses the correct repository" do
+          repo = described_class.new("https://github.com/JoeSmith/manageiq")
+          expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("JoeSmith", "manageiq@#{sha}"))
+        end
+      end
+
       context "with a different organization" do
         it "sets the correct org" do
           repo = described_class.new("JoeSmith/manageiq")
@@ -67,6 +74,12 @@ describe ManageIQ::CrossRepo::Repository do
 
       it "expands the PR into a sha" do
         repo = described_class.new("manageiq##{pr}")
+
+        expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
+      end
+
+      it "expands a PR URL into a sha" do
+        repo = described_class.new("https://github.com/ManageIQ/manageiq/pull/#{pr}")
 
         expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
       end
