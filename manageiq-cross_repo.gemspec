@@ -22,11 +22,11 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "simplecov"
 
   spec.add_dependency "activesupport"
   spec.add_dependency "mixlib-archive"
   spec.add_dependency "optimist"
-  spec.add_dependency "rake"
 end
