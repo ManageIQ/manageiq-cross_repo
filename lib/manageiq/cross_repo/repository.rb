@@ -45,6 +45,21 @@ module ManageIQ::CrossRepo
         repo = path.basename.to_s
         ref  = Dir.chdir(path) { `git rev-parse HEAD`.chomp }
         sha  = ref
+      elsif identifier.start_with?(server)
+        identifier = URI.parse(identifier).path
+        org_and_repo, pr = identifier.split("/pull/")
+        _, org, repo = org_and_repo.split("/")
+
+        url = File.join(server, org, repo)
+        sha = if pr
+          git_pr_to_sha(url, pr)
+        else
+          git_branch_to_sha(url, "master")
+        end
+
+        raise ArgumentError, "#{identifier} does not exist" if sha.nil?
+
+        path = REPOS_DIR.join("#{org}/#{repo}@#{sha}")
       else
         if identifier.include?("#")
           name, pr = identifier.split("#")
