@@ -18,19 +18,19 @@ opts = Optimist.options do
     changes you are making as a developer will affect the other test suites.
   EOS
 
-  opt :test_repo, <<~EOS, :type => :string, :default => ENV.fetch("TEST_REPO", "ManageIQ/manageiq@master")
+  opt :test_repo, <<~EOS, :type => :string, :default => ENV["TEST_REPO"].presence || "ManageIQ/manageiq@master"
     This is the repository which will be tested.
     Can also be passed as a TEST_REPO environment variable.
   EOS
 
-  opt :core_repo, <<~EOS, :type => :string, :default => ENV["CORE_REPO"]
+  opt :core_repo, <<~EOS, :type => :string, :default => ENV["CORE_REPO"].presence
     Used to specify a different core branch in which plugin tests will run.
      If --test-repo is a plugin, defaults to ManageIQ/manageiq@master.
      If --test-repo is a core repo, this option is not allowed.
     Can also be passed as a CORE_REPO environment variable.
   EOS
 
-  opt :gem_repos, <<~EOS, :type => :strings, :multi => true, :default => ENV["GEM_REPOS"]
+  opt :gem_repos, <<~EOS, :type => :strings, :multi => true, :default => ENV["GEM_REPOS"].presence
     Optional, a list of other plugin/gem overrides which are needed to run the tests.
     Can also be passed as a GEM_REPOS environment variable.
   EOS
