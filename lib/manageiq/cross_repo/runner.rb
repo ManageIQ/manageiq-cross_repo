@@ -68,7 +68,7 @@ module ManageIQ::CrossRepo
       if gem_repos.empty?
         FileUtils.rm_f override_path
       else
-        content = gem_repos.map { |gem| "override_gem \"#{gem.repo}\", :path => \"#{gem.path}\"" }.join("\n")
+        content = gem_repos.map { |gem| "ensure_gem \"#{gem.repo}\", :path => \"#{gem.path}\"" }.join("\n")
         FileUtils.mkdir_p(bundler_d_path)
 
         File.write(override_path, content)
