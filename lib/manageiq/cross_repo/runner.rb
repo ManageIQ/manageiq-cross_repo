@@ -8,7 +8,7 @@ module ManageIQ::CrossRepo
     def initialize(test_repo, core_repo, gem_repos)
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
       if @test_repo.core?
-        raise ArgumentError, "You cannot pass core repo when running a core test"           if core_repo.present?
+        raise ArgumentError, "You cannot pass core repo when running a core test"           if core_repo.present? && core_repo != test_repo
         raise ArgumentError, "You must pass at least one gem repo when running a core test" if gem_repos.blank?
 
         @core_repo = @test_repo
