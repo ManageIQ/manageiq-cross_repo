@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov"
 
   spec.add_dependency "activesupport"
+  spec.add_dependency "ffi-libarchive"
   spec.add_dependency "mixlib-archive"
   spec.add_dependency "optimist"
 end
