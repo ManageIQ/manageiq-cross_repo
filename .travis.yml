@@ -6,6 +6,9 @@ cache:
   bundler: true
 addons:
   postgresql: '10'
+  apt:
+    packages:
+    - libarchive-dev
 matrix:
   fast_finish: true
 env:
