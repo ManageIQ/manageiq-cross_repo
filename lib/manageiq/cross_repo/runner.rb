@@ -58,6 +58,10 @@ module ManageIQ::CrossRepo
     end
 
     def system!(*args)
+      if ENV["DEBUG"]
+        repo = Dir.pwd.split("/").last(2).join("/")
+        puts "\e[36mDEBUG: #{repo} - #{args.join(" ")}\e[0m"
+      end
       exit($?.exitstatus) unless system(*args)
     end
 
