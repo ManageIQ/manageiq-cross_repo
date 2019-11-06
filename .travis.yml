@@ -1,7 +1,7 @@
 dist: xenial
 language: ruby
 rvm:
-- 2.5.5
+- 2.5.7
 cache:
   bundler: true
 addons:
@@ -13,6 +13,9 @@ matrix:
   fast_finish: true
 env:
   global:
-  - TEST_REPO=
-  - CORE_REPO=
-  - GEM_REPOS=
+  - TEST_REPO=manageiq#19378
+  matrix:
+  - TEST_REPO=manageiq-api
+  - TEST_REPO=manageiq-ui-classic
+  - TEST_REPO=manageiq-providers-openshift
+  - TEST_REPO=manageiq-providers-kubernetes
