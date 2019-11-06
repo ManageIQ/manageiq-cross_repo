@@ -13,7 +13,7 @@ matrix:
   fast_finish: true
 env:
   global:
-  - TEST_REPO=manageiq#19378
+  - CORE_REPO=manageiq#19378
   matrix:
   - TEST_REPO=manageiq-api
   - TEST_REPO=manageiq-ui-classic
