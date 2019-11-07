@@ -51,7 +51,6 @@ module ManageIQ::CrossRepo
 
     def with_test_env
       Dir.chdir(test_repo.path) do
-        require "bundler"
         Bundler.with_clean_env do
           yield
         end
