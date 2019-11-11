@@ -40,11 +40,11 @@ module ManageIQ::CrossRepo
 
     def run_plugin
       core_repo.ensure_clone
-      symlink_core_repo_spec
       prepare_gem_repos
 
+      env_vars = {"MANAGEIQ_REPO" => core_repo.path.to_s}
       with_test_env do
-        system!("bin/setup")
+        system!(env_vars, "bin/setup")
         system!("bundle exec rake")
       end
     end
@@ -82,12 +82,6 @@ module ManageIQ::CrossRepo
     def prepare_gem_repos
       gem_repos.each { |gem_repo| gem_repo.ensure_clone }
       generate_bundler_d
-    end
-
-    def symlink_core_repo_spec
-      core_spec_symlink = test_repo.path.join("spec", "manageiq")
-      FileUtils.rm_f(core_spec_symlink)
-      FileUtils.ln_s(core_repo.path, core_spec_symlink)
     end
   end
 end
