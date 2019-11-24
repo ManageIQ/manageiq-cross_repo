@@ -5,20 +5,21 @@ module ManageIQ::CrossRepo
   class Runner
     attr_reader :test_repo, :core_repo, :gem_repos
 
-    def initialize(test_repo, core_repo, gem_repos)
+    def initialize(test_repo, repos)
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
+
+      core_repos, @gem_repos = Array(repos).collect { |repo| Repository.new(repo) }.partition(&:core?)
+      @core_repo = core_repos.first
+
       if @test_repo.core?
-        raise ArgumentError, "You cannot pass core repo when running a core test"           if core_repo.present? && core_repo != test_repo
-        raise ArgumentError, "You must pass at least one gem repo when running a core test" if gem_repos.blank?
+        raise ArgumentError, "You cannot pass a different core repo when running a core test" if @core_repo.present? && @core_repo != @test_repo
 
         @core_repo = @test_repo
       else
-        raise ArgumentError, "You must pass either a core repo or at least one gem repo when running a plugin test" if core_repo.blank? && gem_repos.blank?
+        raise ArgumentError, "You must pass at least one repo when running a plugin test." if repos.blank?
 
-        @core_repo = Repository.new(core_repo || "ManageIQ/manageiq@master")
+        @core_repo ||= Repository.new("ManageIQ/manageiq@master")
       end
-
-      @gem_repos = gem_repos.to_a.map { |repo| Repository.new(repo) }
     end
 
     def run
