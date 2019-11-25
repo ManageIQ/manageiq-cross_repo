@@ -13,7 +13,7 @@ describe ManageIQ::CrossRepo::Repository do
         it "sets the proper defaults" do
           repo = described_class.new("manageiq")
 
-          expect(repo.org).to eq("ManageIQ")
+          expect(repo.org).to  eq("ManageIQ")
           expect(repo.repo).to eq("manageiq")
           expect(repo.sha).to  eq(sha)
           expect(repo.url).to  eq("https://github.com/ManageIQ/manageiq")
@@ -112,6 +112,29 @@ describe ManageIQ::CrossRepo::Repository do
 
     it "with a plugin repo" do
       expect(described_class.new("manageiq-providers-amazon").core?).to be_falsy
+    end
+  end
+
+  context "#==" do
+    it "with the same identifier is equal" do
+      repo1 = described_class.new("manageiq@#{sha}")
+      repo2 = described_class.new("manageiq@#{sha}")
+
+      expect(repo1).to eq(repo2)
+    end
+
+    it "with different identifiers is not equal" do
+      repo1 = described_class.new("manageiq@#{sha}")
+      repo2 = described_class.new("manageiq-ui-classic@9ce90e18be2fc2d0fd864d89c09790bd9d4b45bb")
+
+      expect(repo1).not_to eq(repo2)
+    end
+
+    it "the same repo and sha in different orgs is equal" do
+      repo1 = described_class.new("manageiq@#{sha}")
+      repo2 = described_class.new("JohnDoe/manageiq@#{sha}")
+
+      expect(repo1).to eq(repo2)
     end
   end
 
