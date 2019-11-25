@@ -7,7 +7,7 @@ require "manageiq-cross_repo"
 require "optimist"
 
 opts = Optimist.options do
-  usage "--test-repo repo [--core-repo repo] [--gem-repos repo1 repo2 ...]"
+  usage "--test-repo repo [--repos repo1 repo2 ...]"
 
   version "v#{ManageIQ::CrossRepo::VERSION}\n"
 
@@ -24,16 +24,11 @@ opts = Optimist.options do
     Can also be passed as a TEST_REPO environment variable.
   EOS
 
-  opt :core_repo, <<~EOS, :type => :string, :default => ENV["CORE_REPO"].presence
-    Used to specify a different core branch in which plugin tests will run.
-     If --test-repo is a plugin, defaults to ManageIQ/manageiq@master.
-     If --test-repo is a core repo, this option is not allowed.
-    Can also be passed as a CORE_REPO environment variable.
-  EOS
-
-  opt :gem_repos, <<~EOS, :type => :strings, :multi => true, :default => Array(ENV["GEM_REPOS"].presence)
-    Optional, a list of other plugin/gem overrides which are needed to run the tests.
-    Can also be passed as a GEM_REPOS environment variable.
+  opt :repos, <<~EOS, :type => :strings, :default => Array(ENV["REPOS"].presence)
+    Optional, a list of other repos and/or gems to override while running the tests.
+    If any of the repositories in the list are a core repository that will
+    be used as the root repository, otherwise ManageIQ/manageiq@master will be the default.
+    Can also be passed as a REPOS environment variable.
   EOS
 
   # Manually add these so they appear in the right order in the help output
@@ -63,7 +58,7 @@ opts = Optimist.options do
       manageiq-cross_repo --test-repo manageiq-ui-classic
 
       # Test a plugin against a ManageIQ SHA
-      manageiq-cross_repo --test-repo manageiq-ui-classic --core-repo manageiq@1234abcd
+      manageiq-cross_repo --test-repo manageiq-ui-classic --repos manageiq@1234abcd
 
       # Test a plugin branch
       manageiq-cross_repo --test-repo manageiq-ui-classic@feature
@@ -75,28 +70,23 @@ opts = Optimist.options do
       manageiq-cross_repo --test-repo manageiq-ui-classic#1234
 
       # Test a plugin with a set of other plugins
-      manageiq-cross_repo --test-repo manageiq-ui-classic --gem-repos manageiq-providers-vmware@feature manageiq-content@feature
+      manageiq-cross_repo --test-repo manageiq-ui-classic --repos manageiq-providers-vmware@feature manageiq-content@feature
 
       # Test a plugin branch with a ManageIQ SHA and a set of other plugins
-      manageiq-cross_repo --test-repo manageiq-ui-classic@feature --core-repo manageiq@1234abcd --gem-repos manageiq-providers-vmware@feature manageiq-content@feature
+      manageiq-cross_repo --test-repo manageiq-ui-classic@feature --repos manageiq@1234abcd manageiq-providers-vmware@feature manageiq-content@feature
 
       # Run core tests with ManageIQ master using a gem version
-      manageiq-cross_repo --gem-repos johndoe/manageiq-ui-classic@feature
+      manageiq-cross_repo --repos johndoe/manageiq-ui-classic@feature
 
       # Run core tests for a branch and a set of gems
-      manageiq-cross_repo --test-repo johndoe/manageiq@feature --gem-repos manageiq-providers-vmware@feature manageiq-content@feature
+      manageiq-cross_repo --test-repo johndoe/manageiq@feature --repos manageiq-providers-vmware@feature manageiq-content@feature
   EOS
 end
 
-opts[:gem_repos] = opts[:gem_repos].flatten.flat_map { |repo| repo.split(",").map(&:strip) }
-
-if ENV["CI"] && opts[:test_repo] == "ManageIQ/manageiq@master" && opts[:core_repo].blank? && opts[:gem_repos].blank?
-  puts "Nothing to do!"
-  exit
-end
+opts[:repos] = opts[:repos].flatten.flat_map { |repo| repo.split(",").map(&:strip) }
 
 begin
-  ManageIQ::CrossRepo.run(opts[:test_repo], opts[:core_repo], opts[:gem_repos])
+  ManageIQ::CrossRepo.run(opts[:test_repo], opts[:repos])
 rescue ArgumentError => e
   Optimist.die e
 end

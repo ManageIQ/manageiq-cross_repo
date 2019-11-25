@@ -1,7 +1,7 @@
 # ManageIQ cross-repository testing framework
 
 ```
-Usage: manageiq-cross_repo --test-repo repo [--core-repo repo] [--gem-repos repo1 repo2 ...]
+Usage: manageiq-cross_repo --test-repo repo [--repos repo1 repo2 ...]
 
 manageiq-cross_repo is a cross repository test framework for the ManageIQ project.
 Its purpose is to allow running multiple repository tests suites in the context
@@ -12,12 +12,10 @@ Options:
   -t, --test-repo=<s>     This is the repository which will be tested.
                           Can also be passed as a TEST_REPO environment variable.
                            (default: ManageIQ/manageiq@master)
-  -c, --core-repo=<s>     Used to specify a different core branch in which plugin tests will run.
-                           If --test-repo is a plugin, defaults to ManageIQ/manageiq@master.
-                           If --test-repo is a core repo, this option is not allowed.
-                          Can also be passed as a CORE_REPO environment variable.
-  -g, --gem-repos=<s+>    Optional, a list of other plugin/gem overrides which are needed to run the tests.
-                          Can also be passed as a GEM_REPOS environment variable.
+  -r, --repos=<s+>        Optional, a list of other repos and/or gems to override while running the tests.
+                          If any of the repositories in the list are a core repository that will
+                          be used as the root repository, otherwise ManageIQ/manageiq@master will be the default.
+                          Can also be passed as a REPOS environment variable.
 
   -v, --version           Print version and exit
   -h, --help              Show this message
@@ -39,7 +37,7 @@ Examples:
   manageiq-cross_repo --test-repo manageiq-ui-classic
 
   # Test a plugin against a ManageIQ SHA
-  manageiq-cross_repo --test-repo manageiq-ui-classic --core-repo manageiq@1234abcd
+  manageiq-cross_repo --test-repo manageiq-ui-classic --repos manageiq@1234abcd
 
   # Test a plugin branch
   manageiq-cross_repo --test-repo manageiq-ui-classic@feature
@@ -51,16 +49,16 @@ Examples:
   manageiq-cross_repo --test-repo manageiq-ui-classic#1234
 
   # Test a plugin with a set of other plugins
-  manageiq-cross_repo --test-repo manageiq-ui-classic --gem-repos manageiq-providers-vmware@feature manageiq-content@feature
+  manageiq-cross_repo --test-repo manageiq-ui-classic --repos manageiq-providers-vmware@feature manageiq-content@feature
 
   # Test a plugin branch with a ManageIQ SHA and a set of other plugins
-  manageiq-cross_repo --test-repo manageiq-ui-classic@feature --core-repo manageiq@1234abcd --gem-repos manageiq-providers-vmware@feature manageiq-content@feature
+  manageiq-cross_repo --test-repo manageiq-ui-classic@feature --repos manageiq@1234abcd manageiq-providers-vmware@feature manageiq-content@feature
 
   # Run core tests with ManageIQ master using a gem version
-  manageiq-cross_repo --gem-repos johndoe/manageiq-ui-classic@feature
+  manageiq-cross_repo --repos johndoe/manageiq-ui-classic@feature
 
   # Run core tests for a branch and a set of gems
-  manageiq-cross_repo --test-repo johndoe/manageiq@feature --gem-repos manageiq-providers-vmware@feature manageiq-content@feature
+  manageiq-cross_repo --test-repo johndoe/manageiq@feature --repos manageiq-providers-vmware@feature manageiq-content@feature
 ```
 
 ## License
