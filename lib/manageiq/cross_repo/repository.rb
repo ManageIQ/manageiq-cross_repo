@@ -19,6 +19,10 @@ module ManageIQ::CrossRepo
       repo.casecmp("manageiq") == 0
     end
 
+    def ==(other)
+      repo == other.repo && sha == other.sha
+    end
+
     def ensure_clone
       return if path.exist?
 
