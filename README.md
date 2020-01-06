@@ -15,7 +15,7 @@ Options:
   -r, --repos=<s+>        Optional, a list of other repos and/or gems to override while running the tests.
                           If any of the repositories in the list are a core repository that will
                           be used as the root repository, otherwise ManageIQ/manageiq@master will be the default.
-                          Can also be passed as a REPOS environment variable.
+                          Can also be passed as a REPOS environment variable, space-separated.
 
   -v, --version           Print version and exit
   -h, --help              Show this message
@@ -53,6 +53,8 @@ Examples:
 
   # Test a plugin branch with a ManageIQ SHA and a set of other plugins
   manageiq-cross_repo --test-repo manageiq-ui-classic@feature --repos manageiq@1234abcd manageiq-providers-vmware@feature manageiq-content@feature
+  # or equivalently:
+  env TEST_REPO=manageiq-ui-classic@feature REPOS='manageiq@1234abcd manageiq-providers-vmware@feature manageiq-content@feature' manageiq-cross_repo
 
   # Run core tests with ManageIQ master using a gem version
   manageiq-cross_repo --repos johndoe/manageiq-ui-classic@feature
