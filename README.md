@@ -66,3 +66,10 @@ Examples:
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## Running on Travis
+
+This tool executes the tests locally.
+
+Frequently it's easier and more useful to run on Travis, where the test results can be shared with other developers/reviewers.
+That's possible by opening a PR to https://github.com/ManageIQ/manageiq-cross_repo-tests repo.
