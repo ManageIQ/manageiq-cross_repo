@@ -34,7 +34,7 @@ module ManageIQ::CrossRepo
       puts "Fetching #{tarball_url}"
 
       Dir.mktmpdir do |dir|
-        Mixlib::Archive.new(open(tarball_url, "rb")).extract(dir)
+        Mixlib::Archive.new(open_tarball_url(tarball_url)).extract(dir)
 
         content_dir = Pathname.new(dir).children.detect(&:directory?)
         FileUtils.mkdir_p(path.dirname)
@@ -145,6 +145,19 @@ module ManageIQ::CrossRepo
 
     def tarball_url
       url && File.join(url, "tarball", sha)
+    end
+
+    def open_tarball_url(url)
+      archive = open(tarball_url, "rb")
+
+      if archive.kind_of?(StringIO)
+        archive = Tempfile.new('cross_repo').tap do |f|
+          f.write(archive.string)
+          f.fsync
+        end.path
+      end
+
+      archive
     end
 
     def git_branch_to_sha(url, branch)
