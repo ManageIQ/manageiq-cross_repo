@@ -78,22 +78,47 @@ describe ManageIQ::CrossRepo::Repository do
 
     context "with a PR" do
       let(:pr) { "1" }
-      before do
-        allow_any_instance_of(described_class).to receive(:git_branch_to_sha)
-          .with(anything, "refs/pull/#{pr}/head")
-          .and_return(sha)
+      context "merge commit exists" do
+        before do
+          allow_any_instance_of(described_class).to receive(:git_branch_to_sha)
+            .with(anything, "refs/pull/#{pr}/merge")
+            .and_return(sha)
+        end
+
+        it "expands the PR into a sha" do
+          repo = described_class.new("manageiq##{pr}")
+
+          expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
+        end
+
+        it "expands a PR URL into a sha" do
+          repo = described_class.new("https://github.com/ManageIQ/manageiq/pull/#{pr}")
+
+          expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
+        end
       end
 
-      it "expands the PR into a sha" do
-        repo = described_class.new("manageiq##{pr}")
+      context "merge commit does not exist" do
+        before do
+          allow_any_instance_of(described_class).to receive(:git_branch_to_sha)
+            .with(anything, "refs/pull/#{pr}/merge")
+            .and_return(nil)
+          allow_any_instance_of(described_class).to receive(:git_branch_to_sha)
+            .with(anything, "refs/pull/#{pr}/head")
+            .and_return(sha)
+        end
 
-        expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
-      end
+        it "expands the PR into a sha" do
+          repo = described_class.new("manageiq##{pr}")
 
-      it "expands a PR URL into a sha" do
-        repo = described_class.new("https://github.com/ManageIQ/manageiq/pull/#{pr}")
+          expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
+        end
 
-        expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
+        it "expands a PR URL into a sha" do
+          repo = described_class.new("https://github.com/ManageIQ/manageiq/pull/#{pr}")
+
+          expect(repo.path).to eq(ManageIQ::CrossRepo::REPOS_DIR.join("ManageIQ", "manageiq@#{sha}"))
+        end
       end
     end
   end

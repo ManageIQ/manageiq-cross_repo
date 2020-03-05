@@ -165,7 +165,7 @@ module ManageIQ::CrossRepo
     end
 
     def git_pr_to_sha(url, pr)
-      git_branch_to_sha(url, "refs/pull/#{pr}/head")
+      git_branch_to_sha(url, "refs/pull/#{pr}/merge") || git_branch_to_sha(url, "refs/pull/#{pr}/head")
     end
   end
 end
