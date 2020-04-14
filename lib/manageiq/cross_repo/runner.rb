@@ -24,30 +24,23 @@ module ManageIQ::CrossRepo
 
     def run
       test_repo.ensure_clone
-      test_repo.core? ? run_core : run_plugin
+      core_repo.ensure_clone unless test_repo.core?
+      prepare_gem_repos
+      run_tests
     end
 
     private
 
-    def run_core
-      prepare_gem_repos
-
+    def run_tests
       with_test_env do
-        system!({"TRAVIS_BUILD_DIR" => test_repo.path.to_s}, "bash", "tools/ci/before_install.sh") if ENV["CI"]
-        system!("bin/setup")
+        system!({"TRAVIS_BUILD_DIR" => test_repo.path.to_s}, "bash", "tools/ci/before_install.sh") if ENV["CI"] && File.exist?("tools/ci/before_install.sh")
+        system!(env_vars, "bin/setup")
         system!("bundle exec rake")
       end
     end
 
-    def run_plugin
-      core_repo.ensure_clone
-      prepare_gem_repos
-
-      env_vars = {"MANAGEIQ_REPO" => core_repo.path.to_s}
-      with_test_env do
-        system!(env_vars, "bin/setup")
-        system!("bundle exec rake")
-      end
+    def env_vars
+      {"MANAGEIQ_REPO" => core_repo.path.to_s}
     end
 
     def with_test_env
