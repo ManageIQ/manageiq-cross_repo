@@ -148,7 +148,7 @@ module ManageIQ::CrossRepo
     end
 
     def open_tarball_url(url)
-      archive = open(tarball_url, "rb")
+      archive = URI.open(tarball_url, "rb")
 
       if archive.kind_of?(StringIO)
         archive = Tempfile.new('cross_repo').tap do |f|
