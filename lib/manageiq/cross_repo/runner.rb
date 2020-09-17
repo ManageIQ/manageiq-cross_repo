@@ -3,9 +3,9 @@ require "active_support/core_ext/object/blank"
 
 module ManageIQ::CrossRepo
   class Runner
-    attr_reader :test_repo, :core_repo, :gem_repos
+    attr_reader :test_repo, :core_repo, :gem_repos, :script_cmd
 
-    def initialize(test_repo, repos)
+    def initialize(test_repo, repos, script_cmd = "")
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
 
       core_repos, @gem_repos = Array(repos).collect { |repo| Repository.new(repo) }.partition(&:core?)
@@ -20,6 +20,8 @@ module ManageIQ::CrossRepo
 
         @core_repo ||= Repository.new("ManageIQ/manageiq@master")
       end
+
+      @script_cmd = script_cmd.presence || "bundle exec rake"
     end
 
     def run
@@ -35,7 +37,7 @@ module ManageIQ::CrossRepo
       with_test_env do
         system!({"TRAVIS_BUILD_DIR" => test_repo.path.to_s}, "bash", "tools/ci/before_install.sh") if ENV["CI"] && File.exist?("tools/ci/before_install.sh")
         system!(env_vars, "bin/setup")
-        system!("bundle exec rake")
+        system!(script_cmd)
       end
     end
 
