@@ -16,6 +16,8 @@ Options:
                           If any of the repositories in the list are a core repository that will
                           be used as the root repository, otherwise ManageIQ/manageiq@master will be the default.
                           Can also be passed as a REPOS environment variable.
+  -s, --script-cmd=<s>    Optional, a command string for running the specs.  Defaults to `bundle exec rake`.
+                           (default: )
 
   -v, --version           Print version and exit
   -h, --help              Show this message
