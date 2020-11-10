@@ -77,6 +77,18 @@ module ManageIQ::CrossRepo
         FileUtils.mkdir_p(bundler_d_path)
 
         File.write(override_path, content)
+
+        if debug
+          puts
+          puts "*" * 80
+          puts
+          puts "Contents of #{override_path}"
+          puts
+          puts File.read(override_path)
+          puts
+          puts "*" * 80
+          puts
+        end
       end
     end
 
