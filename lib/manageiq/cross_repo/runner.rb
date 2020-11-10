@@ -3,9 +3,9 @@ require "active_support/core_ext/object/blank"
 
 module ManageIQ::CrossRepo
   class Runner
-    attr_reader :test_repo, :core_repo, :gem_repos, :script_cmd
+    attr_reader :test_repo, :core_repo, :gem_repos, :script_cmd, :debug
 
-    def initialize(test_repo, repos, script_cmd = "")
+    def initialize(test_repo, repos, script_cmd = "", debug = false)
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
 
       core_repos, @gem_repos = Array(repos).collect { |repo| Repository.new(repo) }.partition(&:core?)
@@ -22,6 +22,7 @@ module ManageIQ::CrossRepo
       end
 
       @script_cmd = script_cmd.presence || "bundle exec rake"
+      @debug      = debug
     end
 
     def run
@@ -54,7 +55,7 @@ module ManageIQ::CrossRepo
     end
 
     def system!(*args)
-      if ENV["DEBUG"]
+      if debug
         repo = Dir.pwd.split("/").last(2).join("/")
         puts "\e[36mDEBUG: #{repo} - #{args.join(" ")}\e[0m"
       end
@@ -76,6 +77,18 @@ module ManageIQ::CrossRepo
         FileUtils.mkdir_p(bundler_d_path)
 
         File.write(override_path, content)
+
+        if debug
+          puts
+          puts "*" * 80
+          puts
+          puts "Contents of #{override_path}"
+          puts
+          puts File.read(override_path)
+          puts
+          puts "*" * 80
+          puts
+        end
       end
     end
 

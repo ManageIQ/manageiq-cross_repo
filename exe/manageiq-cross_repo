@@ -35,6 +35,8 @@ opts = Optimist.options do
     Optional, a command string for running the specs.  Defaults to `bundle exec rake`.
   EOS
 
+  opt :debug, "Print extra debugging output", :default => ENV["DEBUG"].presence || false
+
   # Manually add these so they appear in the right order in the help output
   banner ""
   opt :version, "Print version and exit"
@@ -90,7 +92,7 @@ end
 opts[:repos] = opts[:repos].flatten.flat_map { |repo| repo.split(",").map(&:strip) }
 
 begin
-  ManageIQ::CrossRepo.run(opts[:test_repo], opts[:repos], opts[:script_cmd])
+  ManageIQ::CrossRepo.run(opts[:test_repo], opts[:repos], opts[:script_cmd], opts[:debug])
 rescue ArgumentError => e
   Optimist.die e
 end
