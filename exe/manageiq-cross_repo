@@ -31,9 +31,14 @@ opts = Optimist.options do
     Can also be passed as a REPOS environment variable.
   EOS
 
-  opt :script_cmd, <<~EOS, :type => :string, :default => ENV["SCRIPT_CMD"].presence || ""
-    Optional, a command string for running the specs.  Defaults to `bundle exec rake`.
+  opt :test_suite, <<~EOS, :type => :string, :default => ENV["TEST_SUITE"].presence || ""
+    Optional, the name of a rake test suite to pass to `bundle exec rake` e.g. spec:javascript.
   EOS
+
+  opt :script_cmd, <<~EOS, :type => :string, :default => ENV["SCRIPT_CMD"].presence || ""
+    Optional, a command string for running the specs.
+  EOS
+
 
   # Manually add these so they appear in the right order in the help output
   banner ""
@@ -90,7 +95,7 @@ end
 opts[:repos] = opts[:repos].flatten.flat_map { |repo| repo.split(",").map(&:strip) }
 
 begin
-  ManageIQ::CrossRepo.run(opts[:test_repo], opts[:repos], opts[:script_cmd])
+  ManageIQ::CrossRepo.run(opts[:test_repo], opts[:repos], opts[:test_suite], opts[:script_cmd])
 rescue ArgumentError => e
   Optimist.die e
 end

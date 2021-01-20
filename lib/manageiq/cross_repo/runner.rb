@@ -3,9 +3,9 @@ require "active_support/core_ext/object/blank"
 
 module ManageIQ::CrossRepo
   class Runner
-    attr_reader :test_repo, :core_repo, :gem_repos, :script_cmd
+    attr_reader :test_repo, :core_repo, :gem_repos, :test_suite, :script_cmd
 
-    def initialize(test_repo, repos, script_cmd = "")
+    def initialize(test_repo, repos, test_suite = "", script_cmd = "")
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
 
       core_repos, @gem_repos = Array(repos).collect { |repo| Repository.new(repo) }.partition(&:core?)
@@ -22,6 +22,7 @@ module ManageIQ::CrossRepo
       end
 
       @script_cmd = script_cmd.presence || "bundle exec rake"
+      @test_suite = test_suite.presence
     end
 
     def run
@@ -35,14 +36,22 @@ module ManageIQ::CrossRepo
 
     def run_tests
       with_test_env do
-        system!({"TRAVIS_BUILD_DIR" => test_repo.path.to_s}, "bash", "tools/ci/before_install.sh") if ENV["CI"] && File.exist?("tools/ci/before_install.sh")
-        system!(env_vars, "bin/setup")
-        system!(script_cmd)
+        require "yaml"
+        travis_yml = YAML.load_file(".travis.yml")
+
+        commands =
+          Array(travis_yml["before_install"]) +
+          Array(travis_yml["install"]) +
+          Array(travis_yml["before_script"]) +
+          Array(travis_yml["script"] || script_cmd) +
+          Array(travis_yml["after_script"])
+
+        system!(env_vars, "/bin/bash -c \"#{commands.join("\; ")}\"")
       end
     end
 
     def env_vars
-      {"MANAGEIQ_REPO" => core_repo.path.to_s}
+      {"MANAGEIQ_REPO" => core_repo.path.to_s, "TRAVIS_BUILD_DIR" => test_repo.path.to_s, "TEST_SUITE" => test_suite}
     end
 
     def with_test_env
@@ -65,6 +74,8 @@ module ManageIQ::CrossRepo
       bundler_d_path = core_repo.path.join("bundler.d")
       override_path  = bundler_d_path.join("overrides.rb")
 
+      require "fileutils"
+
       if gem_repos.empty?
         FileUtils.rm_f override_path
       else
@@ -73,6 +84,7 @@ module ManageIQ::CrossRepo
           gem_name = gem.path.glob("*.gemspec")&.first&.basename(".gemspec") || gem.repo
           "ensure_gem \"#{gem_name}\", :path => \"#{gem.path}\""
         end.join("\n")
+
         FileUtils.mkdir_p(bundler_d_path)
 
         File.write(override_path, content)
