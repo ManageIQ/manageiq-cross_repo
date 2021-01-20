@@ -3,7 +3,7 @@ require "active_support/core_ext/object/blank"
 
 module ManageIQ::CrossRepo
   class Runner
-    attr_reader :test_repo, :core_repo, :gem_repos, :test_suite, :script_cmd
+    attr_reader :test_repo, :core_repo, :gem_repos, :test_suite, :script_cmd, :install_cmd
 
     def initialize(test_repo, repos, test_suite = "", script_cmd = "")
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
@@ -22,6 +22,7 @@ module ManageIQ::CrossRepo
       end
 
       @script_cmd = script_cmd.presence || "bundle exec rake"
+      @install_cmd = "bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}"
       @test_suite = test_suite.presence
     end
 
@@ -41,7 +42,7 @@ module ManageIQ::CrossRepo
 
         commands =
           Array(travis_yml["before_install"]) +
-          Array(travis_yml["install"]) +
+          Array(travis_yml["install"] || install_cmd) +
           Array(travis_yml["before_script"]) +
           Array(travis_yml["script"] || script_cmd) +
           Array(travis_yml["after_script"])
