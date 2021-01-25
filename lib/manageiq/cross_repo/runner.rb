@@ -3,7 +3,7 @@ require "active_support/core_ext/object/blank"
 
 module ManageIQ::CrossRepo
   class Runner
-    attr_reader :test_repo, :core_repo, :gem_repos, :test_suite, :script_cmd, :install_cmd
+    attr_reader :test_repo, :core_repo, :gem_repos, :test_suite, :script_cmd
 
     def initialize(test_repo:, repos:, test_suite: nil, script_cmd: nil)
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
@@ -21,8 +21,7 @@ module ManageIQ::CrossRepo
         @core_repo ||= Repository.new("ManageIQ/manageiq@master")
       end
 
-      @script_cmd = script_cmd.presence || "bundle exec rake"
-      @install_cmd = "bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}"
+      @script_cmd = script_cmd.presence
       @test_suite = test_suite.presence
     end
 
@@ -37,28 +36,11 @@ module ManageIQ::CrossRepo
 
     def run_tests
       with_test_env do
-        # Set missing travis sections to the proper defaults
-        travis_yml["install"] ||= install_cmd
-        travis_yml["script"] ||= script_cmd
+        load_travis_yml!
 
-        sections = %w[before_install install before_script script after_script]
-        commands = sections.flat_map do |section|
-          # Travis sections can have a single command or an array of commands
-          section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?"}
-          [
-            "echo 'travis_fold:start:#{section}'",
-            *section_commands,
-            "echo 'travis_fold:end:#{section}'"
-          ]
-        end
+        test_script = build_test_script
 
-        bash_script = <<~BASH_SCRIPT
-          #!/bin/bash
-
-          #{commands.join("\n")}
-        BASH_SCRIPT
-
-        system!(env_vars, "/bin/bash -c \"#{bash_script}\"")
+        system!(env_vars, "/bin/bash -c \"#{test_script}\"")
       end
     end
 
@@ -108,11 +90,48 @@ module ManageIQ::CrossRepo
       generate_bundler_d
     end
 
+    def build_test_script
+      sections = %w[before_install install before_script script after_script]
+      commands = sections.flat_map do |section|
+        # Travis sections can have a single command or an array of commands
+        section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?"}
+        [
+          "echo 'travis_fold:start:#{section}'",
+          *section_commands,
+          "echo 'travis_fold:end:#{section}'"
+        ]
+      end
+
+      bash_script = <<~BASH_SCRIPT
+        #!/bin/bash
+
+        #{commands.join("\n")}
+      BASH_SCRIPT
+    end
+
+    def load_travis_yml!
+      # Load the test_repo's .travis.yml file
+      travis_yml
+
+      # Set missing travis sections to the proper defaults
+      travis_yml["install"] ||= travis_defaults["install"]
+
+      travis_yml["script"] = script_cmd if script_cmd.present?
+      travis_yml["script"] ||= travis_defaults["script"]
+    end
+
     def travis_yml
       @travis_yml ||= begin
         require "yaml"
         YAML.load_file(".travis.yml")
       end
+    end
+
+    def travis_defaults
+      @travis_defaults ||= {
+        "install" => "bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}",
+        "script"  => "bundle exec rake"
+      }.freeze
     end
   end
 end
