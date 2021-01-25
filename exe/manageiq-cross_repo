@@ -32,11 +32,14 @@ opts = Optimist.options do
   EOS
 
   opt :test_suite, <<~EOS, :type => :string, :default => ENV["TEST_SUITE"].presence || ""
-    Optional, the name of a rake test suite to pass to `bundle exec rake` e.g. spec:javascript.
+    Optional, the name of a rake test suite to pass as an environment variable to the test being run.
+    This is commonly used by the .travis.yml to conditionally perform different setup tasks
+    and also to run different test suites, e.g. spec:javascript.
   EOS
 
-  opt :script_cmd, <<~EOS, :type => :string, :default => ENV["SCRIPT_CMD"].presence || ""
+  opt :script_cmd, <<~EOS, :type => :string, :default => ENV["SCRIPT_CMD"].presence || "bundle exec rake"
     Optional, a command string for running the specs.
+    If present this will override the the script section of the test_repo's .travis.yml
   EOS
 
 
