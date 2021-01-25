@@ -5,7 +5,7 @@ module ManageIQ::CrossRepo
   class Runner
     attr_reader :test_repo, :core_repo, :gem_repos, :test_suite, :script_cmd, :install_cmd
 
-    def initialize(test_repo, repos, test_suite = "", script_cmd = "")
+    def initialize(test_repo:, repos:, test_suite: nil, script_cmd: nil)
       @test_repo = Repository.new(test_repo || "ManageIQ/manageiq@master")
 
       core_repos, @gem_repos = Array(repos).collect { |repo| Repository.new(repo) }.partition(&:core?)
