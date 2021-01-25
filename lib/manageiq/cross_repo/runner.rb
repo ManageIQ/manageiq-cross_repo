@@ -37,9 +37,19 @@ module ManageIQ::CrossRepo
 
     def run_tests
       with_test_env do
+        # Set missing travis sections to the proper defaults
+        travis_yml["install"] ||= install_cmd
+        travis_yml["script"] ||= script_cmd
+
         sections = %w[before_install install before_script script after_script]
         commands = sections.flat_map do |section|
-          Array(travis_yml[section])
+          # Travis sections can have a single command or an array of commands
+          section_commands = Array(travis_yml[section])
+          [
+            "echo 'travis_fold:start:#{section}'",
+            *section_commands,
+            "echo 'travis_fold:end:#{section}'"
+          ]
         end
 
         bash_script = <<~BASH_SCRIPT
