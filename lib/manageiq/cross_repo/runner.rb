@@ -37,17 +37,20 @@ module ManageIQ::CrossRepo
 
     def run_tests
       with_test_env do
-        require "yaml"
-        travis_yml = YAML.load_file(".travis.yml")
+        sections = %w[before_install install before_script script after_script]
+        commands = sections.flat_map do |section|
+          Array(travis_yml[section])
+        end
 
-        commands =
-          Array(travis_yml["before_install"]) +
-          Array(travis_yml["install"] || install_cmd) +
-          Array(travis_yml["before_script"]) +
-          Array(travis_yml["script"] || script_cmd) +
-          Array(travis_yml["after_script"])
+        bash_script = <<~BASH_SCRIPT
+          #!/bin/bash
 
-        system!(env_vars, "/bin/bash -c \"#{commands.join("\; ")}\"")
+          set -e
+
+          #{commands.join("\n")}
+        BASH_SCRIPT
+
+        system!(env_vars, bash_script)
       end
     end
 
@@ -95,6 +98,13 @@ module ManageIQ::CrossRepo
     def prepare_gem_repos
       gem_repos.each { |gem_repo| gem_repo.ensure_clone }
       generate_bundler_d
+    end
+
+    def travis_yml
+      @travis_yml ||= begin
+        require "yaml"
+        YAML.load_file(".travis.yml")
+      end
     end
   end
 end
