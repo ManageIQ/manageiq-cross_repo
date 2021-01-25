@@ -44,7 +44,7 @@ module ManageIQ::CrossRepo
         sections = %w[before_install install before_script script after_script]
         commands = sections.flat_map do |section|
           # Travis sections can have a single command or an array of commands
-          section_commands = Array(travis_yml[section])
+          section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?"}
           [
             "echo 'travis_fold:start:#{section}'",
             *section_commands,
@@ -55,12 +55,10 @@ module ManageIQ::CrossRepo
         bash_script = <<~BASH_SCRIPT
           #!/bin/bash
 
-          set -e
-
           #{commands.join("\n")}
         BASH_SCRIPT
 
-        system!(env_vars, bash_script)
+        system!(env_vars, "/bin/bash -c \"#{bash_script}\"")
       end
     end
 
