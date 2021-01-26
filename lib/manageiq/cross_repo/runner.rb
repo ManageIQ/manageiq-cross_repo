@@ -37,14 +37,8 @@ module ManageIQ::CrossRepo
     def run_tests
       with_test_env do
         load_travis_yml!
-
         test_script = build_test_script
-
-        r, w = IO.pipe
-        w.write(test_script)
-        w.close
-
-        system!(env_vars, "/bin/bash -s", :in => r, :out => $stdout, :err => $stderr)
+        run_test_script(test_script)
       end
     end
 
@@ -96,11 +90,20 @@ module ManageIQ::CrossRepo
       generate_bundler_d
     end
 
+    def run_test_script(test_script)
+      r, w = IO.pipe
+      w.write(test_script)
+      w.close
+
+      system!(env_vars, "/bin/bash -s", :in => r, :out => $stdout, :err => $stderr)
+    end
+
     def build_test_script
-      sections = %w[before_install install before_script script after_script]
+      sections = %w[before_install install before_script script]
       commands = sections.flat_map do |section|
         # Travis sections can have a single command or an array of commands
-        section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?"}
+        section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?" }
+
         [
           "echo 'travis_fold:start:#{section}'",
           *section_commands,
@@ -108,7 +111,7 @@ module ManageIQ::CrossRepo
         ]
       end
 
-      bash_script = <<~BASH_SCRIPT
+      <<~BASH_SCRIPT
         #!/bin/bash
 
         #{commands.join("\n")}
