@@ -40,7 +40,11 @@ module ManageIQ::CrossRepo
 
         test_script = build_test_script
 
-        system!(env_vars, "/bin/bash -c \"#{test_script}\"")
+        r, w = IO.pipe
+        w.write(test_script)
+        w.close
+
+        system!(env_vars, "/bin/bash -s", :in => r, :out => $stdout, :err => $stderr)
       end
     end
 
@@ -61,7 +65,9 @@ module ManageIQ::CrossRepo
         repo = Dir.pwd.split("/").last(2).join("/")
         puts "\e[36mDEBUG: #{repo} - #{args.join(" ")}\e[0m"
       end
-      exit($?.exitstatus) unless system(*args)
+
+      Process.wait(spawn(*args))
+      exit($?.exitstatus) unless $?.success?
     end
 
     def generate_bundler_d
