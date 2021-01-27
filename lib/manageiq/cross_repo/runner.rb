@@ -36,9 +36,7 @@ module ManageIQ::CrossRepo
 
     def run_tests
       with_test_env do
-        load_travis_yml!
-        test_script = build_test_script
-        run_test_script(test_script)
+        run_test_script(build_test_script)
       end
     end
 
@@ -99,6 +97,8 @@ module ManageIQ::CrossRepo
     end
 
     def build_test_script
+      load_travis_yml!
+
       sections = %w[before_install install before_script script]
       commands = sections.flat_map do |section|
         # Travis sections can have a single command or an array of commands
