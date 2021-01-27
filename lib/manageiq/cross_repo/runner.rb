@@ -103,13 +103,14 @@ module ManageIQ::CrossRepo
       commands = sections.flat_map do |section|
         # Travis sections can have a single command or an array of commands
         section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?" }
+        next if section_commands.blank?
 
         [
           "echo 'travis_fold:start:#{section}'",
           *section_commands,
           "echo 'travis_fold:end:#{section}'"
         ]
-      end
+      end.compact
 
       <<~BASH_SCRIPT
         #!/bin/bash
