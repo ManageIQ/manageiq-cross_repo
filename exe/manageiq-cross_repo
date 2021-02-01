@@ -31,9 +31,17 @@ opts = Optimist.options do
     Can also be passed as a REPOS environment variable.
   EOS
 
-  opt :script_cmd, <<~EOS, :type => :string, :default => ENV["SCRIPT_CMD"].presence || ""
-    Optional, a command string for running the specs.  Defaults to `bundle exec rake`.
+  opt :test_suite, <<~EOS, :type => :string, :default => ENV["TEST_SUITE"].presence
+    Optional, the name of a rake test suite to pass as an environment variable to the test being run.
+    This is commonly used by the .travis.yml to conditionally perform different setup tasks
+    and also to run different test suites, e.g. spec:javascript.
   EOS
+
+  opt :script_cmd, <<~EOS, :type => :string, :default => ENV["SCRIPT_CMD"].presence
+    Optional, a command string for running the specs.
+    If present this will override the the script section of the test_repo's .travis.yml
+  EOS
+
 
   # Manually add these so they appear in the right order in the help output
   banner ""
@@ -88,9 +96,15 @@ opts = Optimist.options do
 end
 
 opts[:repos] = opts[:repos].flatten.flat_map { |repo| repo.split(",").map(&:strip) }
+test_repo, repos, test_suite, script_cmd = opts.values_at(:test_repo, :repos, :test_suite, :script_cmd)
 
 begin
-  ManageIQ::CrossRepo.run(opts[:test_repo], opts[:repos], opts[:script_cmd])
+  ManageIQ::CrossRepo.run(
+    :test_repo  => test_repo,
+    :repos      => repos,
+    :test_suite => test_suite,
+    :script_cmd => script_cmd
+  )
 rescue ArgumentError => e
   Optimist.die e
 end
