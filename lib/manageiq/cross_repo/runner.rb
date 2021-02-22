@@ -34,6 +34,11 @@ module ManageIQ::CrossRepo
 
     private
 
+    def bundle_path
+      app_path = Pathname.new(ENV["TRAVIS_BUILD_DIR"].presence || Pathname.pwd)
+      app_path.join("vendor", "bundle")
+    end
+
     def run_tests
       with_test_env do
         run_test_script(build_test_script)
@@ -41,7 +46,7 @@ module ManageIQ::CrossRepo
     end
 
     def env_vars
-      {"MANAGEIQ_REPO" => core_repo.path.to_s, "TRAVIS_BUILD_DIR" => test_repo.path.to_s, "TEST_SUITE" => test_suite}
+      {"MANAGEIQ_REPO" => core_repo.path.to_s, "TRAVIS_BUILD_DIR" => test_repo.path.to_s, "BUNDLE_PATH" => bundle_path.to_s, "TEST_SUITE" => test_suite}
     end
 
     def with_test_env
