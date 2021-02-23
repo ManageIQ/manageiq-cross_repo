@@ -19,25 +19,25 @@ opts = Optimist.options do
     changes you are making as a developer will affect the other test suites.
   EOS
 
-  opt :test_repo, <<~EOS, :type => :string, :default => ENV["TEST_REPO"].presence || "ManageIQ/manageiq@master"
+  opt :test_repo, <<~EOS, :type => :string, :default => ENV["TEST_REPO"] || "ManageIQ/manageiq@master"
     This is the repository which will be tested.
     Can also be passed as a TEST_REPO environment variable.
   EOS
 
-  opt :repos, <<~EOS, :type => :strings, :default => Array(ENV["REPOS"].presence)
+  opt :repos, <<~EOS, :type => :strings, :default => Array(ENV["REPOS"])
     Optional, a list of other repos and/or gems to override while running the tests.
     If any of the repositories in the list are a core repository that will
     be used as the root repository, otherwise ManageIQ/manageiq@master will be the default.
     Can also be passed as a REPOS environment variable.
   EOS
 
-  opt :test_suite, <<~EOS, :type => :string, :default => ENV["TEST_SUITE"].presence
+  opt :test_suite, <<~EOS, :type => :string, :default => ENV["TEST_SUITE"]
     Optional, the name of a rake test suite to pass as an environment variable to the test being run.
     This is commonly used by the .travis.yml to conditionally perform different setup tasks
     and also to run different test suites, e.g. spec:javascript.
   EOS
 
-  opt :script_cmd, <<~EOS, :type => :string, :default => ENV["SCRIPT_CMD"].presence
+  opt :script_cmd, <<~EOS, :type => :string, :default => ENV["SCRIPT_CMD"]
     Optional, a command string for running the specs.
     If present this will override the the script section of the test_repo's .travis.yml
   EOS

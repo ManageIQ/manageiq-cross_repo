@@ -1,5 +1,4 @@
 require "manageiq/cross_repo/repository"
-require "active_support/core_ext/object/blank"
 
 module ManageIQ::CrossRepo
   class Runner
@@ -12,17 +11,17 @@ module ManageIQ::CrossRepo
       @core_repo = core_repos.first
 
       if @test_repo.core?
-        raise ArgumentError, "You cannot pass a different core repo when running a core test" if @core_repo.present? && @core_repo != @test_repo
+        raise ArgumentError, "You cannot pass a different core repo when running a core test" if !@core_repo.nil? && @core_repo != @test_repo
 
         @core_repo = @test_repo
       else
-        raise ArgumentError, "You must pass at least one repo when running a plugin test." if repos.blank?
+        raise ArgumentError, "You must pass at least one repo when running a plugin test." if repos.empty?
 
         @core_repo ||= Repository.new("ManageIQ/manageiq@master")
       end
 
-      @script_cmd = script_cmd.presence
-      @test_suite = test_suite.presence
+      @script_cmd = script_cmd
+      @test_suite = test_suite
     end
 
     def run
@@ -35,7 +34,7 @@ module ManageIQ::CrossRepo
     private
 
     def bundle_path
-      app_path = Pathname.new(ENV["TRAVIS_BUILD_DIR"].presence || Pathname.pwd)
+      app_path = Pathname.new(ENV["TRAVIS_BUILD_DIR"] || Pathname.pwd)
       app_path.join("vendor", "bundle")
     end
 
@@ -110,7 +109,7 @@ module ManageIQ::CrossRepo
       commands += sections.flat_map do |section|
         # Travis sections can have a single command or an array of commands
         section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?" }
-        next if section_commands.blank?
+        next if section_commands.empty?
 
         [
           "echo 'travis_fold:start:#{section}'",
@@ -146,7 +145,7 @@ module ManageIQ::CrossRepo
       # Set missing travis sections to the proper defaults
       travis_yml["install"] ||= travis_defaults[travis_yml["language"]]["install"]
 
-      travis_yml["script"] = script_cmd if script_cmd.present?
+      travis_yml["script"] = script_cmd unless script_cmd.nil? || script_cmd.empty?
       travis_yml["script"] ||= travis_defaults[travis_yml["language"]]["script"]
     end
 
