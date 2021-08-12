@@ -1,3 +1,6 @@
+require 'tmpdir'
+require 'mixlib/archive'
+
 describe ManageIQ::CrossRepo::Repository do
   let(:sha) { "3f8339abf642fafd452a48d20fc6696a17aa49a1" }
   context "#initialize" do
@@ -164,5 +167,56 @@ describe ManageIQ::CrossRepo::Repository do
   end
 
   context "#ensure_clone" do
+    subject { described_class.new("ManageIQ/manageiq-cross_repo") }
+
+    let!(:extract_dir)       { Pathname.new Dir.mktmpdir }
+    let!(:temp_dir)          { Pathname.new Dir.mktmpdir }
+
+    let!(:extract_file_path) { extract_dir.join("README.md") }
+    let!(:fake_tarball)      { temp_dir.join("not_a_tarball") }
+    let!(:fake_uri)          { "file://#{fake_tarball.to_s}" }
+    let!(:tarball_path)      { temp_dir.join("tarball.tar.gz") }
+    let!(:tarball_file_path) { temp_dir.join("README.md").to_s }
+    let!(:tarball_file)      { File.write(tarball_file_path, "# MY README") } 
+
+    before do
+      Mixlib::Archive.new(tarball_path.to_s).create([tarball_file_path], gzip: true)
+
+      allow(Dir).to     receive(:mktmpdir).and_yield(extract_dir.to_s)
+      allow(subject).to receive(:puts).and_return(nil)
+      allow(subject).to receive(:sleep).and_return(nil) # for speed
+      allow(subject).to receive(:tarball_url).and_return(*tarball_url_returns)
+      allow(subject).to receive(:path).and_return(extract_file_path)
+    end
+
+    context "with a working tarball" do
+      let(:tarball_url_returns) { [tarball_path] }
+
+      it "extracts the tar.gz" do
+        subject.ensure_clone
+
+        expect(File).to exist(extract_file_path)
+      end
+    end
+
+    context "with a failed first two attempts" do
+      let(:tarball_url_returns) do
+        [fake_uri, fake_uri, fake_uri, fake_uri, tarball_path, tarball_path]
+      end
+
+      it "extracts the tar.gz" do
+        subject.ensure_clone
+
+        expect(File).to exist(extract_file_path)
+      end
+    end
+
+    context "with more than three failed  attempts" do
+      let(:tarball_url_returns) { [fake_uri] }
+
+      it "extracts the tar.gz" do
+        expect { subject.ensure_clone }.to raise_error Errno::ENOENT
+      end
+    end
   end
 end
