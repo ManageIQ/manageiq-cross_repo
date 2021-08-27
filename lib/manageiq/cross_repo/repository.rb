@@ -31,7 +31,9 @@ module ManageIQ::CrossRepo
       require "tmpdir"
       require "zlib"
 
-      puts "Fetching #{tarball_url}"
+      retries ||= 0
+
+      puts "Fetching #{tarball_url}#{retry_count(retries)}"
 
       Dir.mktmpdir do |dir|
         Mixlib::Archive.new(open_tarball_url(tarball_url)).extract(dir)
@@ -40,6 +42,12 @@ module ManageIQ::CrossRepo
         FileUtils.mkdir_p(path.dirname)
         FileUtils.mv(content_dir, path)
       end
+    rescue => e
+      retries += 1
+      raise if retries > 3
+
+      sleep 1
+      retry
     end
 
     private
@@ -166,6 +174,12 @@ module ManageIQ::CrossRepo
 
     def git_pr_to_sha(url, pr)
       git_branch_to_sha(url, "refs/pull/#{pr}/merge") || git_branch_to_sha(url, "refs/pull/#{pr}/head")
+    end
+
+    def retry_count(num)
+      return if num == 0
+
+      "  (retry #{num}/3)"
     end
   end
 end
