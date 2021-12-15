@@ -15,7 +15,11 @@ module ManageIQ::CrossRepo
       def travis_config
         steps = github_config["jobs"]["ci"]["steps"]
         language = steps.any? { |s| s["uses"] == "ruby/setup-ruby@v1" } ? "ruby" : "node_js"
-        defaults[language]
+
+        defaults[language].clone.tap do |config|
+          script_step = steps.detect { |s| s["name"] == "Run tests" }
+          config["script"] = script_step["run"] if script_step
+        end
       end
 
       def github_config
