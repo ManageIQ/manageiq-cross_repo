@@ -1,51 +1,114 @@
 describe ManageIQ::CrossRepo::Runner::Travis do
   describe "#build_test_script" do
+    let(:script_cmd) { nil }
     let(:runner) do
-      described_class.new.tap do |r|
+      described_class.new(script_cmd).tap do |r|
         require "yaml"
-        allow(r).to receive(:config).and_return(YAML.load(travis_yml))
+        allow(r).to receive(:travis_config).and_return(YAML.load(travis_yml))
       end
     end
 
-    let(:travis_yml) do
-      <<~TRAVIS_YML
-        ---
-        language: ruby
-        cache: bundler
-        install: bundle install
-        script: bundle exec rake
-      TRAVIS_YML
+    context "ruby" do
+      let(:travis_yml) do
+        <<~TRAVIS_YML
+          ---
+          language: ruby
+          cache: bundler
+          install: bundle install
+          script: bundle exec rake
+        TRAVIS_YML
+      end
+
+      it "builds a test script" do
+        expected_test_script = <<~SCRIPT
+          #!/bin/bash
+
+          echo 'travis_fold:start:install'
+          bundle install || exit $?
+          echo 'travis_fold:end:install'
+          echo 'travis_fold:start:script'
+          bundle exec rake || exit $?
+          echo 'travis_fold:end:script'
+        SCRIPT
+
+        expect(runner.build_test_script).to eq(expected_test_script)
+      end
+
+      context "with a script_cmd" do
+        let(:script_cmd) { "cat db/schema.rb" }
+
+        it "builds a test script" do
+          expected_test_script = <<~SCRIPT
+            #!/bin/bash
+
+            echo 'travis_fold:start:install'
+            bundle install || exit $?
+            echo 'travis_fold:end:install'
+            echo 'travis_fold:start:script'
+            cat db/schema.rb || exit $?
+            echo 'travis_fold:end:script'
+          SCRIPT
+
+          expect(runner.build_test_script).to eq(expected_test_script)
+        end
+      end
     end
 
-    it "builds a test script" do
-      expected_test_script = <<~SCRIPT
-        #!/bin/bash
+    context "node_js" do
+      let(:travis_yml) do
+        <<~TRAVIS_YML
+          ---
+          language: node_js
+          node_js:
+          - '12'
+          cache:
+            yarn: true
+          install: yarn
+          script: yarn run test
+        TRAVIS_YML
+      end
 
-        echo 'travis_fold:start:install'
-        bundle install || exit $?
-        echo 'travis_fold:end:install'
-        echo 'travis_fold:start:script'
-        bundle exec rake || exit $?
-        echo 'travis_fold:end:script'
-      SCRIPT
+      it "builds a test script" do
+        expected_test_script = <<~SCRIPT
+          #!/bin/bash
 
-      expect(runner.build_test_script).to eq(expected_test_script)
-    end
+          echo 'travis_fold:start:environment'
+          source ~/.nvm/nvm.sh
+          nvm install 12
+          echo 'travis_fold:end:environment'
+          echo 'travis_fold:start:install'
+          yarn || exit $?
+          echo 'travis_fold:end:install'
+          echo 'travis_fold:start:script'
+          yarn run test || exit $?
+          echo 'travis_fold:end:script'
+        SCRIPT
 
-    it "builds a test script with a script_cmd" do
-      expected_test_script = <<~SCRIPT
-        #!/bin/bash
+        expect(runner.build_test_script).to eq(expected_test_script)
+      end
 
-        echo 'travis_fold:start:install'
-        bundle install || exit $?
-        echo 'travis_fold:end:install'
-        echo 'travis_fold:start:script'
-        cat db/schema.rb || exit $?
-        echo 'travis_fold:end:script'
-      SCRIPT
+      context "with a script_cmd" do
+        let(:script_cmd) { "cat yarn.lock" }
 
-      script_cmd = "cat db/schema.rb"
-      expect(runner.build_test_script(script_cmd)).to eq(expected_test_script)
+        it "builds a test script" do
+          expected_test_script = <<~SCRIPT
+            #!/bin/bash
+
+            echo 'travis_fold:start:environment'
+            source ~/.nvm/nvm.sh
+            nvm install 12
+            echo 'travis_fold:end:environment'
+            echo 'travis_fold:start:install'
+            yarn || exit $?
+            echo 'travis_fold:end:install'
+            echo 'travis_fold:start:script'
+            cat yarn.lock || exit $?
+            echo 'travis_fold:end:script'
+          SCRIPT
+
+          expect(runner.build_test_script).to eq(expected_test_script)
+        end
+      end
     end
 
     context "with missing sections" do

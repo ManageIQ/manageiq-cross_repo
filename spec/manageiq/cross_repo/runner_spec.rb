@@ -32,4 +32,8 @@ describe ManageIQ::CrossRepo::Runner do
       expect(runner.script_cmd).to eq("cat db/schema.rb")
     end
   end
+
+  it "#script_sources" do
+    expect(described_class.script_sources).to match_array [ManageIQ::CrossRepo::Runner::Travis, ManageIQ::CrossRepo::Runner::Github]
+  end
 end

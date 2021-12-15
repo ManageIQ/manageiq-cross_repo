@@ -5,7 +5,7 @@ Dir.glob(File.join(__dir__, "runner", "*")).sort.each { |f| require f }
 module ManageIQ::CrossRepo
   class Runner
     def self.script_sources
-      constants.map { |c| const_get(c) }.grep(Class)
+      constants.map { |c| const_get(c) }.grep(Class) - [Base]
     end
 
     attr_reader :test_repo, :core_repo, :gem_repos, :test_suite, :script_cmd
@@ -46,7 +46,7 @@ module ManageIQ::CrossRepo
 
     def run_tests
       with_test_env do
-        test_script = script_source.new.build_test_script(script_cmd)
+        test_script = script_source.new(script_cmd).build_test_script
         run_test_script(test_script)
       end
     end
