@@ -18,8 +18,6 @@ module ManageIQ::CrossRepo
 
         @core_repo = @test_repo
       else
-        raise ArgumentError, "You must pass at least one repo when running a plugin test." if repos.blank?
-
         @core_repo ||= Repository.new("ManageIQ/manageiq@master")
       end
 
