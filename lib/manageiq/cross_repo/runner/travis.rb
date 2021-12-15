@@ -1,10 +1,13 @@
 require "active_support/core_ext/object/blank"
+require "yaml"
 
 module ManageIQ::CrossRepo
   class Runner
     class Travis
+      CONFIG_FILE = ".travis.yml".freeze
+
       def self.available?
-        File.exist?(".travis.yml")
+        File.exist?(CONFIG_FILE)
       end
 
       attr_accessor :script_cmd
@@ -12,14 +15,14 @@ module ManageIQ::CrossRepo
       def build_test_script(script_cmd = nil)
         @script_cmd = script_cmd.presence
 
-        load_travis_yml!
+        load_config!
 
         commands = environment_setup_commands
 
         sections = %w[before_install install before_script script]
         commands += sections.flat_map do |section|
           # Travis sections can have a single command or an array of commands
-          section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?" }
+          section_commands = Array(config[section]).map { |cmd| "#{cmd} || exit $?" }
           next if section_commands.blank?
 
           [
@@ -41,9 +44,9 @@ module ManageIQ::CrossRepo
       def environment_setup_commands
         setup_commands = []
 
-        if travis_yml["node_js"]
+        if config["node_js"]
           setup_commands << "source ~/.nvm/nvm.sh"
-          setup_commands += Array(travis_yml["node_js"]).map do |node_version|
+          setup_commands += Array(config["node_js"]).map do |node_version|
             "nvm install #{node_version}"
           end
         end
@@ -51,26 +54,20 @@ module ManageIQ::CrossRepo
         setup_commands
       end
 
-      def load_travis_yml!
-        # Load the test_repo's .travis.yml file
-        travis_yml
+      def load_config!
+        # Set missing sections to the proper defaults
+        config["install"] ||= defaults[config["language"]]["install"]
 
-        # Set missing travis sections to the proper defaults
-        travis_yml["install"] ||= travis_defaults[travis_yml["language"]]["install"]
-
-        travis_yml["script"] = script_cmd if script_cmd.present?
-        travis_yml["script"] ||= travis_defaults[travis_yml["language"]]["script"]
+        config["script"] = script_cmd if script_cmd.present?
+        config["script"] ||= defaults[config["language"]]["script"]
       end
 
-      def travis_yml
-        @travis_yml ||= begin
-          require "yaml"
-          YAML.load_file(".travis.yml")
-        end
+      def config
+        @config ||= YAML.load_file(CONFIG_FILE)
       end
 
-      def travis_defaults
-        @travis_defaults ||= {
+      def defaults
+        @defaults ||= {
           "node_js" => {
             "install" => "npm install",
             "script"  => "npm test"

@@ -3,7 +3,7 @@ describe ManageIQ::CrossRepo::Runner::Travis do
     let(:runner) do
       described_class.new.tap do |r|
         require "yaml"
-        allow(r).to receive(:travis_yml).and_return(YAML.load(travis_yml))
+        allow(r).to receive(:config).and_return(YAML.load(travis_yml))
       end
     end
 
