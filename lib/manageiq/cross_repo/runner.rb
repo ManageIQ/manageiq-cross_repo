@@ -1,9 +1,13 @@
 require "manageiq/cross_repo/repository"
 require "active_support/core_ext/object/blank"
-require_relative "./runner/travis"
+Dir.glob(File.join(__dir__, "runner", "*")).sort.each { |f| require f }
 
 module ManageIQ::CrossRepo
   class Runner
+    def self.script_sources
+      constants.map { |c| const_get(c) }.grep(Class)
+    end
+
     attr_reader :test_repo, :core_repo, :gem_repos, :test_suite, :script_cmd
 
     def initialize(test_repo:, repos:, test_suite: nil, script_cmd: nil)
@@ -70,7 +74,7 @@ module ManageIQ::CrossRepo
     end
 
     def script_source
-      [Travis].detect(&:available?)
+      self.class.script_sources.detect(&:available?)
     end
 
     def generate_bundler_d
