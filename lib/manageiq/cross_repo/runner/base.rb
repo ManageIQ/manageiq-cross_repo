@@ -84,12 +84,16 @@ module ManageIQ::CrossRepo
       def defaults
         @defaults ||= {
           "node_js" => {
-            "install" => "npm install",
-            "script"  => "npm test"
+            "language" => "node_js",
+            "node_js"  => ["12"],
+            "install"  => "npm install",
+            "script"   => "npm test"
           },
           "ruby"    => {
-            "install" => "bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}",
-            "script"  => "bundle exec rake"
+            "language" => "ruby",
+            "rvm"      => ["2.7"],
+            "install"  => "bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}",
+            "script"   => "bundle exec rake"
           }
         }.freeze
       end
