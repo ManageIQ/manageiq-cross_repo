@@ -1,5 +1,7 @@
 require "manageiq/cross_repo/repository"
+require "active_support/core_ext/class/subclasses"
 require "active_support/core_ext/object/blank"
+Dir.glob(File.join(__dir__, "runner", "*")).sort.each { |f| require f }
 
 module ManageIQ::CrossRepo
   class Runner
@@ -41,7 +43,8 @@ module ManageIQ::CrossRepo
 
     def run_tests
       with_test_env do
-        run_test_script(build_test_script)
+        test_script = script_source.new(script_cmd).build_test_script
+        run_test_script(test_script)
       end
     end
 
@@ -65,6 +68,10 @@ module ManageIQ::CrossRepo
 
       Process.wait(spawn(*args))
       exit($?.exitstatus) unless $?.success?
+    end
+
+    def script_source
+      Base.descendants.detect(&:available?)
     end
 
     def generate_bundler_d
@@ -99,75 +106,6 @@ module ManageIQ::CrossRepo
       w.close
 
       system!(env_vars, "/bin/bash -s", :in => r, :out => $stdout, :err => $stderr)
-    end
-
-    def build_test_script
-      load_travis_yml!
-
-      commands = environment_setup_commands
-
-      sections = %w[before_install install before_script script]
-      commands += sections.flat_map do |section|
-        # Travis sections can have a single command or an array of commands
-        section_commands = Array(travis_yml[section]).map { |cmd| "#{cmd} || exit $?" }
-        next if section_commands.blank?
-
-        [
-          "echo 'travis_fold:start:#{section}'",
-          *section_commands,
-          "echo 'travis_fold:end:#{section}'"
-        ]
-      end.compact
-
-      <<~BASH_SCRIPT
-        #!/bin/bash
-
-        #{commands.join("\n")}
-      BASH_SCRIPT
-    end
-
-    def environment_setup_commands
-      setup_commands = []
-
-      if travis_yml["node_js"]
-        setup_commands << "source ~/.nvm/nvm.sh"
-        setup_commands += Array(travis_yml["node_js"]).map do |node_version|
-          "nvm install #{node_version}"
-        end
-      end
-
-      setup_commands
-    end
-
-    def load_travis_yml!
-      # Load the test_repo's .travis.yml file
-      travis_yml
-
-      # Set missing travis sections to the proper defaults
-      travis_yml["install"] ||= travis_defaults[travis_yml["language"]]["install"]
-
-      travis_yml["script"] = script_cmd if script_cmd.present?
-      travis_yml["script"] ||= travis_defaults[travis_yml["language"]]["script"]
-    end
-
-    def travis_yml
-      @travis_yml ||= begin
-        require "yaml"
-        YAML.load_file(".travis.yml")
-      end
-    end
-
-    def travis_defaults
-      @travis_defaults ||= {
-        "node_js" => {
-          "install" => "npm install",
-          "script"  => "npm test"
-        },
-        "ruby"    => {
-          "install" => "bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}",
-          "script"  => "bundle exec rake"
-        }
-      }.freeze
     end
   end
 end
