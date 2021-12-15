@@ -16,8 +16,12 @@ Options:
                           If any of the repositories in the list are a core repository that will
                           be used as the root repository, otherwise ManageIQ/manageiq@master will be the default.
                           Can also be passed as a REPOS environment variable.
-  -s, --script-cmd=<s>    Optional, a command string for running the specs.  Defaults to `bundle exec rake`.
                            (default: )
+  -e, --test-suite=<s>    Optional, the name of a rake test suite to pass as an environment variable to the test being run.
+                          This is commonly used by the CI config to conditionally perform different setup tasks
+                          and also to run different test suites, e.g. spec:javascript.
+  -s, --script-cmd=<s>    Optional, a command string for running the specs.
+                          If present this will override the the script section of the test_repo's CI config
 
   -v, --version           Print version and exit
   -h, --help              Show this message
