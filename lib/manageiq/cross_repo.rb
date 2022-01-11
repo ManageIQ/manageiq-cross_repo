@@ -7,8 +7,8 @@ module ManageIQ
   module CrossRepo
     REPOS_DIR = Pathname.pwd.join("repos")
 
-    def self.run(*args)
-      Runner.new(*args).run
+    def self.run(**args)
+      Runner.new(**args).run
     end
   end
 end
