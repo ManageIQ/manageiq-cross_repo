@@ -12,7 +12,9 @@ module ManageIQ::CrossRepo
 
       private
 
-      def travis_config
+      def ci_config
+        github_config = YAML.load_file(CONFIG_FILE)
+
         steps = github_config["jobs"]["ci"]["steps"]
         language = steps.any? { |s| s["uses"] == "ruby/setup-ruby@v1" } ? "ruby" : "node_js"
 
@@ -20,10 +22,6 @@ module ManageIQ::CrossRepo
           script_step = steps.detect { |s| s["name"] == "Run tests" }
           config["script"] = script_step["run"] if script_step
         end
-      end
-
-      def github_config
-        YAML.load_file(CONFIG_FILE)
       end
     end
   end

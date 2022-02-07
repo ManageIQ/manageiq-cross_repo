@@ -12,7 +12,7 @@ module ManageIQ::CrossRepo
 
       private
 
-      def travis_config
+      def ci_config
         YAML.load_file(CONFIG_FILE)
       end
     end

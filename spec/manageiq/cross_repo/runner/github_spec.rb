@@ -1,11 +1,11 @@
 describe ManageIQ::CrossRepo::Runner::Github do
   describe "#build_test_script" do
     let(:script_cmd) { nil }
-    let(:runner) do
-      described_class.new(script_cmd).tap do |r|
-        require "yaml"
-        allow(r).to receive(:github_config).and_return(YAML.load(github_yml))
-      end
+    let(:runner) { described_class.new(script_cmd) }
+
+    before do
+      require "yaml"
+      allow(YAML).to receive(:load_file).with(described_class::CONFIG_FILE).and_return(YAML.load(github_yml))
     end
 
     context "ruby" do

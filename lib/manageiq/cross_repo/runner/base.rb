@@ -4,10 +4,11 @@ require "yaml"
 module ManageIQ::CrossRepo
   class Runner
     class Base
-      attr_accessor :script_cmd
+      attr_accessor :script_cmd, :config
 
       def initialize(script_cmd = nil)
         @script_cmd = script_cmd.presence
+        @config     = load_config!
       end
 
       def build_test_script
@@ -64,11 +65,7 @@ module ManageIQ::CrossRepo
       end
 
       def load_config!
-        config
-      end
-
-      def config
-        @config ||= travis_config.tap do |config|
+        ci_config.tap do |config|
           # Set missing sections to the proper defaults
           config["install"] ||= defaults[config["language"]]["install"]
 
@@ -77,7 +74,7 @@ module ManageIQ::CrossRepo
         end
       end
 
-      def travis_config
+      def ci_config
         raise NotImplementedError, "must be implemented in a subclass"
       end
 
