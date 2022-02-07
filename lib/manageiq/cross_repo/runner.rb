@@ -26,6 +26,7 @@ module ManageIQ::CrossRepo
     end
 
     def run
+      announce_run
       test_repo.ensure_clone
       core_repo.ensure_clone unless test_repo.core?
       prepare_gem_repos
@@ -33,6 +34,15 @@ module ManageIQ::CrossRepo
     end
 
     private
+
+    def announce_run
+      puts "\e[36m Starting cross repo for:\e[0m"
+      puts "  \e[36mtest repo: #{test_repo.identifier}\e[0m"
+      puts "  \e[36mcore repo: #{core_repo.identifier}\e[0m"
+      gem_repos.each do |gr|
+        puts "  \e[36mgem repo:  #{gr.identifier}\e[0m"
+      end
+    end
 
     def bundle_path
       app_path = Pathname.new(ENV["TRAVIS_BUILD_DIR"].presence || Pathname.pwd)
