@@ -51,18 +51,18 @@ describe ManageIQ::CrossRepo::Runner::Github do
         expected_test_script = <<~SCRIPT
           #!/bin/bash
 
-          echo 'travis_fold:start:before_install'
+          echo '::group::before_install'
           bin/before_install || exit $?
-          echo 'travis_fold:end:before_install'
-          echo 'travis_fold:start:install'
+          echo '::endgroup::'
+          echo '::group::install'
           bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
-          echo 'travis_fold:end:install'
-          echo 'travis_fold:start:before_script'
+          echo '::endgroup::'
+          echo '::group::before_script'
           bin/setup || exit $?
-          echo 'travis_fold:end:before_script'
-          echo 'travis_fold:start:script'
+          echo '::endgroup::'
+          echo '::group::script'
           bundle exec rake || exit $?
-          echo 'travis_fold:end:script'
+          echo '::endgroup::'
         SCRIPT
 
         expect(runner.build_test_script).to eq(expected_test_script)
@@ -75,18 +75,18 @@ describe ManageIQ::CrossRepo::Runner::Github do
           expected_test_script = <<~SCRIPT
             #!/bin/bash
 
-            echo 'travis_fold:start:before_install'
+            echo '::group::before_install'
             bin/before_install || exit $?
-            echo 'travis_fold:end:before_install'
-            echo 'travis_fold:start:install'
+            echo '::endgroup::'
+            echo '::group::install'
             bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
-            echo 'travis_fold:end:install'
-            echo 'travis_fold:start:before_script'
+            echo '::endgroup::'
+            echo '::group::before_script'
             bin/setup || exit $?
-            echo 'travis_fold:end:before_script'
-            echo 'travis_fold:start:script'
+            echo '::endgroup::'
+            echo '::group::script'
             cat db/schema.rb || exit $?
-            echo 'travis_fold:end:script'
+            echo '::endgroup::'
           SCRIPT
 
           expect(runner.build_test_script).to eq(expected_test_script)

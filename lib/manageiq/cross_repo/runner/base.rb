@@ -50,9 +50,9 @@ module ManageIQ::CrossRepo
 
       def build_section(section, *commands)
         [
-          "echo 'travis_fold:start:#{section}'",
+          "echo '::group::#{section}'",
           *commands,
-          "echo 'travis_fold:end:#{section}'"
+          "echo '::endgroup::'"
         ]
       end
 
