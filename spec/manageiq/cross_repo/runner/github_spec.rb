@@ -25,11 +25,15 @@ describe ManageIQ::CrossRepo::Runner::Github do
                   - '2.7'
               steps:
               - uses: actions/checkout@v2
+              - name: Set up system
+                run: bin/before_install
               - name: Set up Ruby
                 uses: ruby/setup-ruby@v1
                 with:
                   ruby-version: ${{ matrix.ruby-version }}
                   bundler-cache: true
+              - name: Prepare tests
+                run: bin/setup
               - name: Run tests
                 run: bundle exec rake
                 env:
@@ -47,9 +51,15 @@ describe ManageIQ::CrossRepo::Runner::Github do
         expected_test_script = <<~SCRIPT
           #!/bin/bash
 
+          echo 'travis_fold:start:before_install'
+          bin/before_install || exit $?
+          echo 'travis_fold:end:before_install'
           echo 'travis_fold:start:install'
           bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
           echo 'travis_fold:end:install'
+          echo 'travis_fold:start:before_script'
+          bin/setup || exit $?
+          echo 'travis_fold:end:before_script'
           echo 'travis_fold:start:script'
           bundle exec rake || exit $?
           echo 'travis_fold:end:script'
@@ -65,9 +75,15 @@ describe ManageIQ::CrossRepo::Runner::Github do
           expected_test_script = <<~SCRIPT
             #!/bin/bash
 
+            echo 'travis_fold:start:before_install'
+            bin/before_install || exit $?
+            echo 'travis_fold:end:before_install'
             echo 'travis_fold:start:install'
             bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
             echo 'travis_fold:end:install'
+            echo 'travis_fold:start:before_script'
+            bin/setup || exit $?
+            echo 'travis_fold:end:before_script'
             echo 'travis_fold:start:script'
             cat db/schema.rb || exit $?
             echo 'travis_fold:end:script'
