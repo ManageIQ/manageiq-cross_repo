@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2022-02-08
+### Changed
+- Announce the cross repo run information (#81)
+- Use Github Actions for CI (#82)
+- Replace Travis with Github Actions (#83)
+
 ## [1.2.1] - 2022-01-11
 ### Fixed
 - Fix unpacking the hash for ruby 3 support
@@ -46,7 +52,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix an issue extracting tgz files smaller than 10Kb
 - Fix an issue overriding gems whose repo name doesn't match
 
-[Unreleased]: https://github.com/ManageIQ/more_core_extensions/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/ManageIQ/more_core_extensions/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/ManageIQ/more_core_extensions/compare/v2.0.0...v1.2.1
 [1.2.1]: https://github.com/ManageIQ/more_core_extensions/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/ManageIQ/more_core_extensions/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/ManageIQ/more_core_extensions/compare/v1.1.2...v1.1.3
