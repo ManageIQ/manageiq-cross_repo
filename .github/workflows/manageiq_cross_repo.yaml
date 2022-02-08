@@ -15,10 +15,11 @@ on:
 
 jobs:
   ci:
-    name: Run manageiq-cross_repo
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        test-repo: ${{ fromJson(inputs.test-repo) }}
     services:
       postgres:
         image: manageiq/postgresql:10
@@ -32,7 +33,7 @@ jobs:
     env:
       TEST_SUITE: ${{ inputs.test-suite }}
       REPOS: ${{ inputs.repos }}
-      TEST_REPO: ${{ inputs.test-repo }}
+      TEST_REPO: ${{ matrix.test-repo }}
       PGHOST: localhost
       PGPASSWORD: smartvm
     steps:
