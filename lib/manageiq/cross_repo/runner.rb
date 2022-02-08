@@ -57,7 +57,7 @@ module ManageIQ::CrossRepo
     end
 
     def env_vars
-      {"MANAGEIQ_REPO" => core_repo.path.to_s, "TRAVIS_BUILD_DIR" => test_repo.path.to_s, "BUNDLE_PATH" => bundle_path.to_s, "TEST_SUITE" => test_suite}
+      {"MANAGEIQ_REPO" => core_repo.path.to_s, "BUNDLE_PATH" => bundle_path.to_s, "TEST_SUITE" => test_suite}
     end
 
     def with_test_env

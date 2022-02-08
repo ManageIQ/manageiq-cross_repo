@@ -1,11 +1,11 @@
 describe ManageIQ::CrossRepo::Runner::Github do
   describe "#build_test_script" do
     let(:script_cmd) { nil }
-    let(:runner) do
-      described_class.new(script_cmd).tap do |r|
-        require "yaml"
-        allow(r).to receive(:github_config).and_return(YAML.load(github_yml))
-      end
+    let(:runner) { described_class.new(script_cmd) }
+
+    before do
+      require "yaml"
+      allow(YAML).to receive(:load_file).with(described_class::CONFIG_FILE).and_return(YAML.load(github_yml))
     end
 
     context "ruby" do
@@ -25,11 +25,15 @@ describe ManageIQ::CrossRepo::Runner::Github do
                   - '2.7'
               steps:
               - uses: actions/checkout@v2
+              - name: Set up system
+                run: bin/before_install
               - name: Set up Ruby
                 uses: ruby/setup-ruby@v1
                 with:
                   ruby-version: ${{ matrix.ruby-version }}
                   bundler-cache: true
+              - name: Prepare tests
+                run: bin/setup
               - name: Run tests
                 run: bundle exec rake
                 env:
@@ -47,12 +51,18 @@ describe ManageIQ::CrossRepo::Runner::Github do
         expected_test_script = <<~SCRIPT
           #!/bin/bash
 
-          echo 'travis_fold:start:install'
+          echo '::group::before_install'
+          bin/before_install || exit $?
+          echo '::endgroup::'
+          echo '::group::install'
           bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
-          echo 'travis_fold:end:install'
-          echo 'travis_fold:start:script'
+          echo '::endgroup::'
+          echo '::group::before_script'
+          bin/setup || exit $?
+          echo '::endgroup::'
+          echo '::group::script'
           bundle exec rake || exit $?
-          echo 'travis_fold:end:script'
+          echo '::endgroup::'
         SCRIPT
 
         expect(runner.build_test_script).to eq(expected_test_script)
@@ -65,12 +75,18 @@ describe ManageIQ::CrossRepo::Runner::Github do
           expected_test_script = <<~SCRIPT
             #!/bin/bash
 
-            echo 'travis_fold:start:install'
+            echo '::group::before_install'
+            bin/before_install || exit $?
+            echo '::endgroup::'
+            echo '::group::install'
             bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
-            echo 'travis_fold:end:install'
-            echo 'travis_fold:start:script'
+            echo '::endgroup::'
+            echo '::group::before_script'
+            bin/setup || exit $?
+            echo '::endgroup::'
+            echo '::group::script'
             cat db/schema.rb || exit $?
-            echo 'travis_fold:end:script'
+            echo '::endgroup::'
           SCRIPT
 
           expect(runner.build_test_script).to eq(expected_test_script)

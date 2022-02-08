@@ -1,11 +1,11 @@
 describe ManageIQ::CrossRepo::Runner::Travis do
   describe "#build_test_script" do
     let(:script_cmd) { nil }
-    let(:runner) do
-      described_class.new(script_cmd).tap do |r|
-        require "yaml"
-        allow(r).to receive(:travis_config).and_return(YAML.load(travis_yml))
-      end
+    let(:runner) { described_class.new(script_cmd) }
+
+    before do
+      require "yaml"
+      allow(YAML).to receive(:load_file).with(described_class::CONFIG_FILE).and_return(YAML.load(travis_yml))
     end
 
     context "ruby" do
@@ -23,12 +23,12 @@ describe ManageIQ::CrossRepo::Runner::Travis do
         expected_test_script = <<~SCRIPT
           #!/bin/bash
 
-          echo 'travis_fold:start:install'
+          echo '::group::install'
           bundle install || exit $?
-          echo 'travis_fold:end:install'
-          echo 'travis_fold:start:script'
+          echo '::endgroup::'
+          echo '::group::script'
           bundle exec rake || exit $?
-          echo 'travis_fold:end:script'
+          echo '::endgroup::'
         SCRIPT
 
         expect(runner.build_test_script).to eq(expected_test_script)
@@ -41,12 +41,12 @@ describe ManageIQ::CrossRepo::Runner::Travis do
           expected_test_script = <<~SCRIPT
             #!/bin/bash
 
-            echo 'travis_fold:start:install'
+            echo '::group::install'
             bundle install || exit $?
-            echo 'travis_fold:end:install'
-            echo 'travis_fold:start:script'
+            echo '::endgroup::'
+            echo '::group::script'
             cat db/schema.rb || exit $?
-            echo 'travis_fold:end:script'
+            echo '::endgroup::'
           SCRIPT
 
           expect(runner.build_test_script).to eq(expected_test_script)
@@ -72,16 +72,16 @@ describe ManageIQ::CrossRepo::Runner::Travis do
         expected_test_script = <<~SCRIPT
           #!/bin/bash
 
-          echo 'travis_fold:start:environment'
+          echo '::group::environment'
           source ~/.nvm/nvm.sh
           nvm install 12
-          echo 'travis_fold:end:environment'
-          echo 'travis_fold:start:install'
+          echo '::endgroup::'
+          echo '::group::install'
           yarn || exit $?
-          echo 'travis_fold:end:install'
-          echo 'travis_fold:start:script'
+          echo '::endgroup::'
+          echo '::group::script'
           yarn run test || exit $?
-          echo 'travis_fold:end:script'
+          echo '::endgroup::'
         SCRIPT
 
         expect(runner.build_test_script).to eq(expected_test_script)
@@ -94,16 +94,16 @@ describe ManageIQ::CrossRepo::Runner::Travis do
           expected_test_script = <<~SCRIPT
             #!/bin/bash
 
-            echo 'travis_fold:start:environment'
+            echo '::group::environment'
             source ~/.nvm/nvm.sh
             nvm install 12
-            echo 'travis_fold:end:environment'
-            echo 'travis_fold:start:install'
+            echo '::endgroup::'
+            echo '::group::install'
             yarn || exit $?
-            echo 'travis_fold:end:install'
-            echo 'travis_fold:start:script'
+            echo '::endgroup::'
+            echo '::group::script'
             cat yarn.lock || exit $?
-            echo 'travis_fold:end:script'
+            echo '::endgroup::'
           SCRIPT
 
           expect(runner.build_test_script).to eq(expected_test_script)
@@ -124,12 +124,12 @@ describe ManageIQ::CrossRepo::Runner::Travis do
         expected_test_script = <<~SCRIPT
           #!/bin/bash
 
-          echo 'travis_fold:start:install'
+          echo '::group::install'
           bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
-          echo 'travis_fold:end:install'
-          echo 'travis_fold:start:script'
+          echo '::endgroup::'
+          echo '::group::script'
           bundle exec rake || exit $?
-          echo 'travis_fold:end:script'
+          echo '::endgroup::'
         SCRIPT
 
         expect(runner.build_test_script).to eq(expected_test_script)
@@ -153,13 +153,13 @@ describe ManageIQ::CrossRepo::Runner::Travis do
         expected_test_script = <<~SCRIPT
           #!/bin/bash
 
-          echo 'travis_fold:start:install'
+          echo '::group::install'
           bundle install || exit $?
-          echo 'travis_fold:end:install'
-          echo 'travis_fold:start:script'
+          echo '::endgroup::'
+          echo '::group::script'
           bundle exec rake || exit $?
           bundle exec rake spec:javascript || exit $?
-          echo 'travis_fold:end:script'
+          echo '::endgroup::'
         SCRIPT
 
         expect(runner.build_test_script).to eq(expected_test_script)

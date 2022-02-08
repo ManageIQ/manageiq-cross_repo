@@ -1,5 +1,6 @@
 require_relative "./base"
 require "yaml"
+require "active_support/core_ext/enumerable"
 
 module ManageIQ::CrossRepo
   class Runner
@@ -12,18 +13,21 @@ module ManageIQ::CrossRepo
 
       private
 
-      def travis_config
+      def ci_config
+        github_config = YAML.load_file(CONFIG_FILE)
+
         steps = github_config["jobs"]["ci"]["steps"]
+        steps_by_name = steps.index_by { |step| step["name"] }
+
         language = steps.any? { |s| s["uses"] == "ruby/setup-ruby@v1" } ? "ruby" : "node_js"
 
-        defaults[language].clone.tap do |config|
-          script_step = steps.detect { |s| s["name"] == "Run tests" }
-          config["script"] = script_step["run"] if script_step
-        end
-      end
+        result = {"language" => language}
 
-      def github_config
-        YAML.load_file(CONFIG_FILE)
+        result["before_install"] = steps_by_name["Set up system"]["run"] if steps_by_name["Set up system"]
+        result["before_script"]  = steps_by_name["Prepare tests"]["run"] if steps_by_name["Prepare tests"]
+        result["script"]         = steps_by_name["Run tests"]["run"]     if steps_by_name["Run tests"]
+
+        result
       end
     end
   end
