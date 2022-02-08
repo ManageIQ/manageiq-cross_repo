@@ -1,0 +1,51 @@
+name: ManageIQ Cross Repo Workflow
+
+on:
+  workflow_call:
+    inputs:
+      test-repo:
+        required: true
+        type: string
+      repos:
+        required: true
+        type: string
+      test-suite:
+        required: false
+        type: string
+
+jobs:
+  ci:
+    name: Run manageiq-cross_repo
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    services:
+      postgres:
+        image: manageiq/postgresql:10
+        env:
+          POSTGRESQL_USER: root
+          POSTGRESQL_PASSWORD: smartvm
+          POSTGRESQL_DATABASE: vmdb_test
+        options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 5
+        ports:
+        - 5432:5432
+    env:
+      TEST_SUITE: ${{ inputs.test-suite }}
+      REPOS: ${{ inputs.repos }}
+      TEST_REPO: ${{ inputs.test-repo }}
+      PGHOST: localhost
+      PGPASSWORD: smartvm
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+        bundler-cache: true
+    - name: Set up Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 12
+        registry-url: https://npm.manageiq.org/
+    - name: Run tests
+      run: bundle exec manageiq-cross_repo
