@@ -3,7 +3,7 @@ name: ManageIQ Cross Repo Workflow
 on:
   workflow_call:
     inputs:
-      test-repo:
+      test-repos:
         required: true
         type: string
       repos:
@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-repo: ${{ fromJson(inputs.test-repo) }}
+        test-repo: ${{ fromJson(inputs.test-repos) }}
     services:
       postgres:
         image: manageiq/postgresql:10
