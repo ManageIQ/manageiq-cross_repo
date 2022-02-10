@@ -12,8 +12,11 @@ module ManageIQ::CrossRepo
       end
 
       def build_test_script
-        load_config!
-        build_script
+        <<~BASH_SCRIPT
+          #!/bin/bash
+
+          #{build_commands.join("\n")}
+        BASH_SCRIPT
       end
 
       private
@@ -54,14 +57,6 @@ module ManageIQ::CrossRepo
           *commands,
           "echo '::endgroup::'"
         ]
-      end
-
-      def build_script
-        <<~BASH_SCRIPT
-          #!/bin/bash
-
-          #{build_commands.join("\n")}
-        BASH_SCRIPT
       end
 
       def load_config!
