@@ -51,46 +51,21 @@ describe ManageIQ::CrossRepo::Runner::Github do
         expected_test_script = <<~SCRIPT
           #!/bin/bash
 
-          echo '::group::before_install'
+          echo '::group::Set up system'
           bin/before_install || exit $?
           echo '::endgroup::'
-          echo '::group::install'
+          echo '::group::Set up Ruby'
           bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
           echo '::endgroup::'
-          echo '::group::before_script'
+          echo '::group::Prepare tests'
           bin/setup || exit $?
           echo '::endgroup::'
-          echo '::group::script'
+          echo '::group::Run tests'
           bundle exec rake || exit $?
           echo '::endgroup::'
         SCRIPT
 
         expect(runner.build_test_script).to eq(expected_test_script)
-      end
-
-      context "with a script_cmd" do
-        let(:script_cmd) { "cat db/schema.rb" }
-
-        it "builds a test script" do
-          expected_test_script = <<~SCRIPT
-            #!/bin/bash
-
-            echo '::group::before_install'
-            bin/before_install || exit $?
-            echo '::endgroup::'
-            echo '::group::install'
-            bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
-            echo '::endgroup::'
-            echo '::group::before_script'
-            bin/setup || exit $?
-            echo '::endgroup::'
-            echo '::group::script'
-            cat db/schema.rb || exit $?
-            echo '::endgroup::'
-          SCRIPT
-
-          expect(runner.build_test_script).to eq(expected_test_script)
-        end
       end
     end
 
