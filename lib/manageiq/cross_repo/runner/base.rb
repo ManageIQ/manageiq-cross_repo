@@ -15,11 +15,15 @@ module ManageIQ::CrossRepo
         <<~BASH_SCRIPT
           #!/bin/bash
 
-          #{build_commands.join("\n")}
+          #{commands.join("\n")}
         BASH_SCRIPT
       end
 
       private
+
+      def commands
+        raise NotImplementedError, "must be implemented in a subclass"
+      end
 
       def build_section(section, *commands)
         [

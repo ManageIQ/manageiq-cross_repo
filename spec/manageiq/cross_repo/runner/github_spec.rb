@@ -67,6 +67,34 @@ describe ManageIQ::CrossRepo::Runner::Github do
 
         expect(runner.build_test_script).to eq(expected_test_script)
       end
+
+      context "with a script_cmd" do
+        let(:script_cmd) { "cat db/schema.rb" }
+
+        it "builds a test script" do
+          expected_test_script = <<~SCRIPT
+            #!/bin/bash
+
+            echo '::group::Set up system'
+            bin/before_install || exit $?
+            echo '::endgroup::'
+            echo '::group::Set up Ruby'
+            bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
+            echo '::endgroup::'
+            echo '::group::Prepare tests'
+            bin/setup || exit $?
+            echo '::endgroup::'
+            echo '::group::Run tests'
+            bundle exec rake || exit $?
+            echo '::endgroup::'
+            echo '::group::script_cmd'
+            cat db/schema.rb || exit $?
+            echo '::endgroup::'
+          SCRIPT
+
+          expect(runner.build_test_script).to eq(expected_test_script)
+        end
+      end
     end
 
     # TODO: Add node_js when we have a node_js repo

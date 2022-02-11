@@ -13,7 +13,10 @@ module ManageIQ::CrossRepo
 
       private
 
-      def build_commands
+      def commands
+        # Append script_cmd to the list of steps if one is present
+        config["jobs"]["ci"]["steps"] << {"run" => script_cmd, "name" => "script_cmd"} if script_cmd
+
         config.dig("jobs", "ci", "steps").map do |step|
           if step["run"].nil?
             case step["uses"]

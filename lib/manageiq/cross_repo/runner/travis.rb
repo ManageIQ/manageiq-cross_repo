@@ -12,6 +12,10 @@ module ManageIQ::CrossRepo
 
       private
 
+      def commands
+        environment_setup_commands + section_commands
+      end
+
       def environment_setup_commands
         commands = []
 
@@ -31,10 +35,6 @@ module ManageIQ::CrossRepo
           commands = build_section_commands(section)
           build_section(section, *commands) if commands.present?
         end.compact
-      end
-
-      def build_commands
-        environment_setup_commands + section_commands
       end
 
       def build_section_commands(section)
