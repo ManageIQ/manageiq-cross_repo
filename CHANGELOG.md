@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.0] - 2022-02-21
+### Changed
+- Update nodejs version to v16 (#79)
+
 ## [2.0.0] - 2022-02-08
 ### Changed
 - Announce the cross repo run information (#81)
@@ -52,14 +56,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix an issue extracting tgz files smaller than 10Kb
 - Fix an issue overriding gems whose repo name doesn't match
 
-[Unreleased]: https://github.com/ManageIQ/more_core_extensions/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/ManageIQ/more_core_extensions/compare/v2.0.0...v1.2.1
-[1.2.1]: https://github.com/ManageIQ/more_core_extensions/compare/v1.2.0...v1.2.1
-[1.2.0]: https://github.com/ManageIQ/more_core_extensions/compare/v1.1.3...v1.2.0
-[1.1.3]: https://github.com/ManageIQ/more_core_extensions/compare/v1.1.2...v1.1.3
-[1.1.2]: https://github.com/ManageIQ/more_core_extensions/compare/v1.1.1...v1.1.2
-[1.1.1]: https://github.com/ManageIQ/more_core_extensions/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/ManageIQ/more_core_extensions/compare/v1.0.4...v1.1.0
-[1.0.4]: https://github.com/ManageIQ/more_core_extensions/compare/v1.0.3...v1.0.4
-[1.0.3]: https://github.com/ManageIQ/more_core_extensions/compare/v1.0.2...v1.0.3
-[1.0.2]: https://github.com/ManageIQ/more_core_extensions/compare/v1.0.1...v1.0.2
+[Unreleased]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.1.0..v2.0.0
+[2.0.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.0.0...v1.2.1
+[1.2.1]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.1.3...v1.2.0
+[1.1.3]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.0.4...v1.1.0
+[1.0.4]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.0.1...v1.0.2
