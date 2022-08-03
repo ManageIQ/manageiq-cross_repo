@@ -62,7 +62,7 @@ module ManageIQ::CrossRepo
 
     def with_test_env
       Dir.chdir(test_repo.path) do
-        Bundler.with_clean_env do
+        Bundler.with_unbundled_env do
           yield
         end
       end
