@@ -43,7 +43,6 @@ jobs:
       with:
         ruby-version: 2.7
         bundler-cache: true
-        bundler: 2.3.18
     - name: Set up Node
       uses: actions/setup-node@v2
       with:
