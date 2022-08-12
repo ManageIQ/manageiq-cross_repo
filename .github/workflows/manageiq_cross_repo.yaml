@@ -12,6 +12,14 @@ on:
       test-suite:
         required: false
         type: string
+      ruby-version:
+        required: false
+        type: string
+        default: '["2.7"]'
+      node-version:
+        required: false
+        type: string
+        default: '["12"]'
 
 jobs:
   ci:
@@ -20,6 +28,8 @@ jobs:
       fail-fast: false
       matrix:
         test-repo: ${{ fromJson(inputs.test-repos) }}
+        ruby-version: ${{ fromJson(inputs.ruby-version) }}
+        node-version: ${{ fromJson(inputs.node-version) }}
     services:
       postgres:
         image: manageiq/postgresql:10
@@ -41,12 +51,12 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.7
+        ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
     - name: Set up Node
       uses: actions/setup-node@v2
       with:
-        node-version: 12
+        node-version: ${{ matrix.node-version }}
         registry-url: https://npm.manageiq.org/
     - name: Run tests
       run: bundle exec manageiq-cross_repo
