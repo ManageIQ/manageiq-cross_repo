@@ -13,17 +13,6 @@ module ManageIQ::CrossRepo
 
       private
 
-      def env_vars
-        super.merge(
-          "CI"                      => "true",
-          "GITHUB_BASE_REF"         => nil, # TODO: test_repo.base_ref,
-          "GITHUB_REF_NAME"         => test_repo.ref || test_repo.sha,
-          "GITHUB_REPOSITORY"       => test_repo.identifier,
-          "GITHUB_REPOSITORY_OWNER" => test_repo.org,
-          "GITHUB_SERVER_URL"       => "https://github.com"
-        )
-      end
-
       def ci_config
         github_config = YAML.load_file(CONFIG_FILE)
 

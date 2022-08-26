@@ -57,7 +57,17 @@ module ManageIQ::CrossRepo
     end
 
     def env_vars
-      {"MANAGEIQ_REPO" => core_repo.path.to_s, "BUNDLE_PATH" => bundle_path.to_s, "TEST_SUITE" => test_suite}
+      {
+        "MANAGEIQ_REPO" => core_repo.path.to_s,
+        "BUNDLE_PATH" => bundle_path.to_s,
+        "TEST_SUITE" => test_suite,
+          "CI"                      => "true",
+          "GITHUB_BASE_REF"         => "oparin", # TODO: test_repo.base_ref,
+          "GITHUB_REF_NAME"         => test_repo.ref || test_repo.sha,
+          "GITHUB_REPOSITORY"       => test_repo.identifier,
+          "GITHUB_REPOSITORY_OWNER" => test_repo.org,
+          "GITHUB_SERVER_URL"       => "https://github.com"
+      }
     end
 
     def with_test_env
@@ -112,6 +122,9 @@ module ManageIQ::CrossRepo
       r, w = IO.pipe
       w.write(test_script)
       w.close
+
+      puts "** AG: #{env_vars.inspect}"
+      puts "** AG: #{test_script.inspect}"
 
       system!(env_vars, "/bin/bash -s", :in => r, :out => $stdout, :err => $stderr)
     end
