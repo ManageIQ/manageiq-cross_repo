@@ -60,7 +60,7 @@ describe ManageIQ::CrossRepo::Runner::Travis do
           ---
           language: node_js
           node_js:
-          - '14'
+          - '16'
           cache:
             yarn: true
           install: yarn
