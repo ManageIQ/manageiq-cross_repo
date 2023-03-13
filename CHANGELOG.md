@@ -4,6 +4,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.3.0] - 2023-03-13
+### Changed
+- Add {ruby/node}-version matrix inputs (#94)
+- Add memcached service (#98)
+
+### Fixed
+- Bundler 2.3.20 resolves the issue with other sources (#93)
+
+## [2.2.0] - 2022-02-28
+### Changed
+- Update node version to 14 (#88)
+- Cron for GitHub Actions (#89)
+
 ## [2.1.0] - 2022-02-21
 ### Changed
 - Update nodejs version to v16 (#79)
