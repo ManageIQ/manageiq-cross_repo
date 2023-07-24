@@ -19,7 +19,7 @@ module ManageIQ::CrossRepo
         steps = github_config["jobs"]["ci"]["steps"]
         steps_by_name = steps.index_by { |step| step["name"] }
 
-        language = steps.any? { |s| s["uses"] == "ruby/setup-ruby@v1" } ? "ruby" : "node_js"
+        language = steps.any? { |s| s["uses"].to_s.start_with?("ruby/setup-ruby") } ? "ruby" : "node_js"
 
         result = {"language" => language}
 

@@ -15,11 +15,11 @@ on:
       ruby-version:
         required: false
         type: string
-        default: '["2.7"]'
+        default: '["3.0"]'
       node-version:
         required: false
         type: string
-        default: '["12"]'
+        default: '["18"]'
 
 jobs:
   ci:
@@ -32,7 +32,7 @@ jobs:
         node-version: ${{ fromJson(inputs.node-version) }}
     services:
       postgres:
-        image: manageiq/postgresql:10
+        image: manageiq/postgresql:13
         env:
           POSTGRESQL_USER: root
           POSTGRESQL_PASSWORD: smartvm
