@@ -74,7 +74,7 @@ describe ManageIQ::CrossRepo::Runner::Travis do
 
           echo '::group::environment'
           source ~/.nvm/nvm.sh
-          nvm install 14
+          nvm install 18
           echo '::endgroup::'
           echo '::group::install'
           yarn || exit $?
@@ -96,7 +96,7 @@ describe ManageIQ::CrossRepo::Runner::Travis do
 
             echo '::group::environment'
             source ~/.nvm/nvm.sh
-            nvm install 14
+            nvm install 18
             echo '::endgroup::'
             echo '::group::install'
             yarn || exit $?
