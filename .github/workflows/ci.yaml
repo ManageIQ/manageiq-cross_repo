@@ -1,11 +1,10 @@
+---
 name: CI
-
 on:
   push:
   pull_request:
   schedule:
-  - cron: '0 0 * * 0'
-
+  - cron: 0 0 * * 0
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -16,12 +15,13 @@ jobs:
         - '2.6'
         - '2.7'
         - '3.0'
+        - '3.1'
     steps:
     - uses: actions/checkout@v4
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
+        ruby-version: "${{ matrix.ruby-version }}"
         bundler-cache: true
       timeout-minutes: 30
     - name: Run tests
