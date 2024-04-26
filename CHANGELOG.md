@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.3.1] - 2024-04-26
+### Fixed
+- Fix nodejs install not being overridden by repo ci.yml (#109)
+
 ## [2.3.0] - 2023-03-13
 ### Changed
 - Add {ruby/node}-version matrix inputs (#94)
@@ -69,7 +73,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix an issue extracting tgz files smaller than 10Kb
 - Fix an issue overriding gems whose repo name doesn't match
 
-[Unreleased]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.1..v2.3.0
+[2.3.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.0..v2.2.0
+[2.2.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.2.0..v2.1.0
 [2.1.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.1.0..v2.0.0
 [2.0.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.0.0...v1.2.1
 [1.2.1]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.2.0...v1.2.1
