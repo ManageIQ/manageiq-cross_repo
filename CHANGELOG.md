@@ -74,11 +74,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix an issue overriding gems whose repo name doesn't match
 
 [Unreleased]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.1...HEAD
-[2.3.1]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.1..v2.3.0
-[2.3.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.0..v2.2.0
-[2.2.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.2.0..v2.1.0
-[2.1.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.1.0..v2.0.0
-[2.0.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.0.0...v1.2.1
+[2.3.1]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.2.1...v2.0.0
 [1.2.1]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v1.1.2...v1.1.3
