@@ -1,3 +1,5 @@
+require 'uri'
+
 module ManageIQ::CrossRepo
   class Repository
     attr_reader :identifier, :server
