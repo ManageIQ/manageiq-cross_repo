@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.4.0] - 2024-11-14
+### Changed
+- Default to ruby 3.3 for manageiq_cross_repo ruby-version (#112)
+
 ## [2.3.1] - 2024-04-26
 ### Fixed
 - Fix nodejs install not being overridden by repo ci.yml (#109)
