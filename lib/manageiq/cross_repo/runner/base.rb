@@ -82,7 +82,7 @@ module ManageIQ::CrossRepo
         @defaults ||= {
           "node_js" => {
             "language"      => "node_js",
-            "node_js"       => ["18"],
+            "node_js"       => ["20"],
             "before_script" => "yarn",
             "script"        => "yarn run test"
           },
