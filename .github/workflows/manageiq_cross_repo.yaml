@@ -1,5 +1,4 @@
 name: ManageIQ Cross Repo Workflow
-
 on:
   workflow_call:
     inputs:
@@ -20,16 +19,20 @@ on:
         required: false
         type: string
         default: '["20"]'
-
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+permissions:
+  contents: read
 jobs:
   ci:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        test-repo: ${{ fromJson(inputs.test-repos) }}
-        ruby-version: ${{ fromJson(inputs.ruby-version) }}
-        node-version: ${{ fromJson(inputs.node-version) }}
+        test-repo: "${{ fromJson(inputs.test-repos) }}"
+        ruby-version: "${{ fromJson(inputs.ruby-version) }}"
+        node-version: "${{ fromJson(inputs.node-version) }}"
     services:
       postgres:
         image: manageiq/postgresql:13
@@ -37,7 +40,7 @@ jobs:
           POSTGRESQL_USER: root
           POSTGRESQL_PASSWORD: smartvm
           POSTGRESQL_DATABASE: vmdb_test
-        options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 5
+        options: "--health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 5"
         ports:
         - 5432:5432
       memcached:
@@ -45,9 +48,9 @@ jobs:
         ports:
         - 11211:11211
     env:
-      TEST_SUITE: ${{ inputs.test-suite }}
-      REPOS: ${{ inputs.repos }}
-      TEST_REPO: ${{ matrix.test-repo }}
+      TEST_SUITE: "${{ inputs.test-suite }}"
+      REPOS: "${{ inputs.repos }}"
+      TEST_REPO: "${{ matrix.test-repo }}"
       PGHOST: localhost
       PGPASSWORD: smartvm
     steps:
@@ -55,12 +58,12 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
+        ruby-version: "${{ matrix.ruby-version }}"
         bundler-cache: true
     - name: Set up Node
       uses: actions/setup-node@v6
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: "${{ matrix.node-version }}"
         registry-url: https://npm.manageiq.org/
     - name: Run tests
       run: bundle exec manageiq-cross_repo
