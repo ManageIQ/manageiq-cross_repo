@@ -55,7 +55,8 @@ describe ManageIQ::CrossRepo::Runner::Github do
           bin/before_install || exit $?
           echo '::endgroup::'
           echo '::group::install'
-          bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
+          bundle config set path ${BUNDLE_PATH:-vendor/bundle} || exit $?
+          bundle install --jobs=3 --retry=3 || exit $?
           echo '::endgroup::'
           echo '::group::before_script'
           bin/setup || exit $?
@@ -79,7 +80,8 @@ describe ManageIQ::CrossRepo::Runner::Github do
             bin/before_install || exit $?
             echo '::endgroup::'
             echo '::group::install'
-            bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
+            bundle config set path ${BUNDLE_PATH:-vendor/bundle} || exit $?
+            bundle install --jobs=3 --retry=3 || exit $?
             echo '::endgroup::'
             echo '::group::before_script'
             bin/setup || exit $?

@@ -125,7 +125,8 @@ describe ManageIQ::CrossRepo::Runner::Travis do
           #!/bin/bash
 
           echo '::group::install'
-          bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle} || exit $?
+          bundle config set path ${BUNDLE_PATH:-vendor/bundle} || exit $?
+          bundle install --jobs=3 --retry=3 || exit $?
           echo '::endgroup::'
           echo '::group::script'
           bundle exec rake || exit $?
