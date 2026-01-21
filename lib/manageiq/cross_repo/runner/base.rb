@@ -89,7 +89,7 @@ module ManageIQ::CrossRepo
           "ruby"    => {
             "language" => "ruby",
             "rvm"      => ["3.1"],
-            "install"  => "bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}",
+            "install"  => ["bundle config set path ${BUNDLE_PATH:-vendor/bundle}", "bundle install --jobs=3 --retry=3"],
             "script"   => "bundle exec rake"
           }
         }.freeze
