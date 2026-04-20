@@ -60,7 +60,7 @@ describe ManageIQ::CrossRepo::Runner::Travis do
           ---
           language: node_js
           node_js:
-          - '20'
+          - '22'
           cache:
             yarn: true
           install: yarn
@@ -74,7 +74,7 @@ describe ManageIQ::CrossRepo::Runner::Travis do
 
           echo '::group::environment'
           source ~/.nvm/nvm.sh
-          nvm install 20
+          nvm install 22
           echo '::endgroup::'
           echo '::group::install'
           yarn || exit $?
@@ -96,7 +96,7 @@ describe ManageIQ::CrossRepo::Runner::Travis do
 
             echo '::group::environment'
             source ~/.nvm/nvm.sh
-            nvm install 20
+            nvm install 22
             echo '::endgroup::'
             echo '::group::install'
             yarn || exit $?
