@@ -4,6 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-08-04
+### Changed
+- Update PostgreSQL testing service to PG 16 (#127)
+- Update node to version 22 (#124)
+- Update minimum node version to 20 (#114)
+- Use `bundle config set path` instead of deprecated `bundle install --path` (#122)
+- Add test-suite to concurrency group (#123)
+- Add ability to run one off CI jobs (#118)
+
 ## [2.4.0] - 2024-11-14
 ### Changed
 - Default to ruby 3.3 for manageiq_cross_repo ruby-version (#112)
@@ -77,7 +86,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix an issue extracting tgz files smaller than 10Kb
 - Fix an issue overriding gems whose repo name doesn't match
 
-[Unreleased]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.4.0...v2.5.0
+[2.4.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/ManageIQ/manageiq-cross_repo/compare/v2.1.0...v2.2.0
